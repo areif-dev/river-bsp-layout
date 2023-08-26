@@ -81,8 +81,8 @@ impl BSPLayout {
     /// in a grid
     fn handle_layout_helper(
         &self,
-        origin_x: u32,
-        origin_y: u32,
+        origin_x: i32,
+        origin_y: i32,
         canvas_width: u32,
         canvas_height: u32,
         view_count: u32,
@@ -96,8 +96,8 @@ impl BSPLayout {
         // entire available canvas
         if view_count == 1 {
             layout.views.push(Rectangle {
-                x: origin_x as i32,
-                y: origin_y as i32,
+                x: origin_x,
+                y: origin_y,
                 width: canvas_width,
                 height: canvas_height,
             });
@@ -113,8 +113,8 @@ impl BSPLayout {
 
         let h2_width: u32;
         let h2_height: u32;
-        let h2_x: u32;
-        let h2_y: u32;
+        let h2_x: i32;
+        let h2_y: i32;
 
         if canvas_width >= canvas_height {
             /* Vertical Split */
@@ -126,7 +126,7 @@ impl BSPLayout {
 
             h2_width = canvas_width / 2 - self.inner_gap / 2;
             h2_height = canvas_height;
-            h2_x = h1_width + origin_x + self.inner_gap;
+            h2_x = h1_width as i32 + origin_x + self.inner_gap as i32;
             h2_y = origin_y;
         } else {
             /* Horizontal Split */
@@ -140,7 +140,7 @@ impl BSPLayout {
             // In case the width of the area is odd, add one extra pixel if needed
             h2_height = canvas_height / 2 - self.inner_gap / 2;
             h2_x = origin_x;
-            h2_y = h1_height + origin_y + self.inner_gap;
+            h2_y = h1_height as i32 + origin_y + self.inner_gap as i32;
         }
 
         /* Split the two halves of the screen as well */
@@ -193,8 +193,8 @@ impl Layout for BSPLayout {
         _output: &str,
     ) -> Result<GeneratedLayout, Self::Error> {
         let layout = self.handle_layout_helper(
-            self.outer_gap,
-            self.outer_gap,
+            self.outer_gap as i32,
+            self.outer_gap as i32,
             usable_width - self.outer_gap * 2,
             usable_height - self.outer_gap * 2,
             view_count,
