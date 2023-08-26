@@ -1,5 +1,18 @@
+use clap::Parser;
 use river_layout_toolkit::{run, GeneratedLayout, Layout, Rectangle};
 use std::convert::Infallible;
+
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Cli {
+    /// The size of the gap between adjacent windows. In pixels
+    #[arg(short, long, default_value_t = 5)]
+    inner_gap: u32,
+
+    /// The size of the gap between windows and the edge of the screen. In pixels
+    #[arg(short, long, default_value_t = 5)]
+    outer_gap: u32,
+}
 
 /// Create a Binary Space Partitioned layout. Specifically, this layout recursively
 /// divides the screen in half. The split will alternate between vertical and horizontal
@@ -27,7 +40,10 @@ use std::convert::Infallible;
 /// |               |               |
 /// |               |               |
 /// +---------------+---------------+
-struct BSPLayout {}
+struct BSPLayout {
+    outer_gap: u32,
+    inner_gap: u32,
+}
 
 impl BSPLayout {
     /// Perform the recursive division by two to evenly divide the screen as best
@@ -61,6 +77,7 @@ impl BSPLayout {
     /// A `GeneratedLayout` with `view_count` cells evenly distributed across the screen
     /// in a grid
     fn handle_layout_helper(
+        &self,
         origin_x: u32,
         origin_y: u32,
         canvas_width: u32,
@@ -89,36 +106,45 @@ impl BSPLayout {
         let views_remaining = view_count % 2; // In case there are odd number of views
 
         let h1_width: u32;
-        let h2_width: u32;
         let h1_height: u32;
+
+        let h2_width: u32;
         let h2_height: u32;
         let h2_x: u32;
         let h2_y: u32;
 
         if canvas_width >= canvas_height {
+            /* Vertical Split */
+
             // In case the width of the area is odd, add one extra pixel if needed
-            h1_width = canvas_width / 2 + canvas_width % 2;
-            h2_width = canvas_width / 2;
+            h1_width =
+                canvas_width / 2 + canvas_width % 2 - self.inner_gap / 2 - self.inner_gap % 2;
             h1_height = canvas_height;
+
+            h2_width = canvas_width / 2 - self.inner_gap / 2;
             h2_height = canvas_height;
-            h2_x = h1_width + origin_x;
+            h2_x = h1_width + origin_x + self.inner_gap;
             h2_y = origin_y;
         } else {
+            /* Horizontal Split */
+
             h1_width = canvas_width;
+            h1_height =
+                canvas_height / 2 + canvas_height % 2 - self.inner_gap / 2 - self.inner_gap % 2;
+
             h2_width = canvas_width;
 
             // In case the width of the area is odd, add one extra pixel if needed
-            h1_height = canvas_height / 2 + canvas_height % 2;
-            h2_height = canvas_height / 2;
+            h2_height = canvas_height / 2 - self.inner_gap / 2;
             h2_x = origin_x;
-            h2_y = h1_height + origin_y;
+            h2_y = h1_height + origin_y + self.inner_gap;
         }
 
         /* Split the two halves of the screen as well */
         let mut first_half =
-            Self::handle_layout_helper(origin_x, origin_y, h1_width, h1_height, half_view_count);
+            self.handle_layout_helper(origin_x, origin_y, h1_width, h1_height, half_view_count);
 
-        let mut sec_half = Self::handle_layout_helper(
+        let mut sec_half = self.handle_layout_helper(
             h2_x,
             h2_y,
             h2_width,
@@ -163,12 +189,22 @@ impl Layout for BSPLayout {
         _tags: u32,
         _output: &str,
     ) -> Result<GeneratedLayout, Self::Error> {
-        let layout = Self::handle_layout_helper(0, 0, usable_width, usable_height, view_count);
+        let layout = self.handle_layout_helper(
+            self.outer_gap,
+            self.outer_gap,
+            usable_width - self.outer_gap * 2,
+            usable_height - self.outer_gap * 2,
+            view_count,
+        );
         Ok(layout)
     }
 }
 
 fn main() {
-    let layout = BSPLayout {};
+    let cli = Cli::parse();
+    let layout = BSPLayout {
+        outer_gap: cli.outer_gap,
+        inner_gap: cli.inner_gap,
+    };
     run(layout).unwrap();
 }
