@@ -2,6 +2,9 @@ use clap::Parser;
 use river_layout_toolkit::{run, GeneratedLayout, Layout, Rectangle};
 use std::convert::Infallible;
 
+/// Layout manager for Wayland tiling compositor River. Creates a grid like Binary Space
+/// Partitioned layout where each window is made as equal in size as possible while still
+/// occupying all available space in the display
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Cli {
