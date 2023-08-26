@@ -143,7 +143,7 @@ impl BSPLayout {
             h2_y = h1_height as i32 + origin_y + self.inner_gap as i32;
         }
 
-        /* Split the two halves of the screen as well */
+        /* Recursively split the two halves of the window */
         let mut first_half =
             self.handle_layout_helper(origin_x, origin_y, h1_width, h1_height, half_view_count);
 
