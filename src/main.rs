@@ -53,28 +53,28 @@ impl BSPLayout {
     /// are dividing all of a 1920x1080 monitor, then the height would be 1080.
     /// If you are dividing the bottom half of the monitor, then the height is 540.
     ///
-    /// * `n_views` - How many windows / containers / apps / division the function
+    /// * `view_count` - How many windows / containers / apps / division the function
     /// needs to make in total.
     ///
     /// # Returns
     ///
-    /// A `GeneratedLayout` with `n_views` cells evenly distributed across the screen
+    /// A `GeneratedLayout` with `view_count` cells evenly distributed across the screen
     /// in a grid
     fn handle_layout_helper(
         origin_x: u32,
         origin_y: u32,
         canvas_width: u32,
         canvas_height: u32,
-        n_views: u32,
+        view_count: u32,
     ) -> GeneratedLayout {
         let mut layout = GeneratedLayout {
             layout_name: "bsp-layout".to_string(),
-            views: Vec::with_capacity(n_views as usize),
+            views: Vec::with_capacity(view_count as usize),
         };
 
         // Exit condition. When there is only one window left, it should take up the
         // entire available canvas
-        if n_views == 1 {
+        if view_count == 1 {
             layout.views.push(Rectangle {
                 x: origin_x as i32,
                 y: origin_y as i32,
@@ -85,34 +85,45 @@ impl BSPLayout {
             return layout;
         }
 
-        let half_n_views = n_views / 2;
-        let views_remaining = n_views % 2; // In case there are odd number of views
+        let half_view_count = view_count / 2;
+        let views_remaining = view_count % 2; // In case there are odd number of views
 
-        let mut h1_width = canvas_width / 2 + canvas_width % 2;
-        let mut h2_width = canvas_width / 2;
-        let mut h1_height = canvas_height;
-        let mut h2_height = canvas_height;
-        let mut h2_x = h1_width + origin_x;
-        let mut h2_y = origin_y;
+        let h1_width: u32;
+        let h2_width: u32;
+        let h1_height: u32;
+        let h2_height: u32;
+        let h2_x: u32;
+        let h2_y: u32;
 
-        if canvas_height > canvas_width {
+        if canvas_width >= canvas_height {
+            // In case the width of the area is odd, add one extra pixel if needed
+            h1_width = canvas_width / 2 + canvas_width % 2;
+            h2_width = canvas_width / 2;
+            h1_height = canvas_height;
+            h2_height = canvas_height;
+            h2_x = h1_width + origin_x;
+            h2_y = origin_y;
+        } else {
             h1_width = canvas_width;
             h2_width = canvas_width;
+
+            // In case the width of the area is odd, add one extra pixel if needed
             h1_height = canvas_height / 2 + canvas_height % 2;
             h2_height = canvas_height / 2;
             h2_x = origin_x;
             h2_y = h1_height + origin_y;
         }
 
+        /* Split the two halves of the screen as well */
         let mut first_half =
-            Self::handle_layout_helper(origin_x, origin_y, h1_width, h1_height, half_n_views);
+            Self::handle_layout_helper(origin_x, origin_y, h1_width, h1_height, half_view_count);
 
         let mut sec_half = Self::handle_layout_helper(
             h2_x,
             h2_y,
             h2_width,
             h2_height,
-            half_n_views + views_remaining,
+            half_view_count + views_remaining,
         );
 
         layout.views.append(&mut first_half.views);
@@ -127,6 +138,7 @@ impl Layout for BSPLayout {
 
     const NAMESPACE: &'static str = "bsp-layout";
 
+    /// Handle commands passed to the layout with `send-layout-cmd`
     fn user_cmd(
         &mut self,
         _cmd: String,
@@ -136,6 +148,13 @@ impl Layout for BSPLayout {
         Ok(())
     }
 
+    /// Create the geometry for the `BSPLayout`
+    ///
+    /// # Arguments
+    ///
+    /// * `view_count` - The number of views / windows / containers to divide the screen into
+    /// * `usable_width` - How many pixels wide the whole display is
+    /// * `usable_height` - How many pixels tall the whole display is
     fn generate_layout(
         &mut self,
         view_count: u32,
