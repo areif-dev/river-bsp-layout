@@ -168,7 +168,9 @@ impl Layout for BSPLayout {
 
     const NAMESPACE: &'static str = "bsp-layout";
 
-    /// Handle commands passed to the layout with `send-layout-cmd`
+    /// Handle commands passed to the layout with `send-layout-cmd`. Currently supports
+    /// "outer-gap #" and "inner-gap #", which will set set the outer and inner gaps
+    /// of the window at runtime
     fn user_cmd(
         &mut self,
         _cmd: String,
