@@ -8,5 +8,6 @@ about = "Binary space partitioned layout for the tiling Wayland compositor River
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-river-layout-toolkit = "0.1"
 clap = { version = "4.4", features = ["derive"] }
+regex = "1.9"
+river-layout-toolkit = "0.1"

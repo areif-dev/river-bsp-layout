@@ -1,4 +1,5 @@
 use clap::Parser;
+use regex::Regex;
 use river_layout_toolkit::{run, GeneratedLayout, Layout, Rectangle};
 use std::convert::Infallible;
 
@@ -174,6 +175,20 @@ impl Layout for BSPLayout {
         _tags: Option<u32>,
         _output: &str,
     ) -> Result<(), Self::Error> {
+        let outer_re = Regex::new(r"^outer-gap \d+$").unwrap();
+        let inner_re = Regex::new(r"^inner-gap \d+$").unwrap();
+
+        if outer_re.is_match(&_cmd) {
+            let new_gap_str = _cmd.split(" ").last().unwrap();
+            let new_gap = new_gap_str.parse::<u32>().unwrap();
+
+            self.outer_gap = new_gap;
+        } else if inner_re.is_match(&_cmd) {
+            let new_gap_str = _cmd.split(" ").last().unwrap();
+            let new_gap = new_gap_str.parse::<u32>().unwrap();
+
+            self.inner_gap = new_gap;
+        }
         Ok(())
     }
 
