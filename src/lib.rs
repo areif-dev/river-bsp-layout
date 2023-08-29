@@ -176,6 +176,26 @@ impl Layout for BSPLayout {
     /// Handle commands passed to the layout with `send-layout-cmd`. Currently supports
     /// "outer-gap #" and "inner-gap #", which will set set the outer and inner gaps
     /// of the window at runtime
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// // Sets the
+    /// use river_bsp_layout::BSPLayout;
+    /// use river_layout_toolkit::Layout;
+    ///
+    /// // Initialize layout with 0 gaps
+    /// let mut bsp = BSPLayout::new(0, 0);
+    ///
+    /// // Set gap between windows and the monitor edge to be 5 pixels
+    /// let res = bsp.user_cmd("outer-gap 5".to_string(), None, "eDP-1").unwrap();
+    /// assert_eq!(bsp.outer_gap, 5);
+    /// ```
+    ///
+    /// # Errors
+    ///
+    /// Will return `BSPLayoutError::CmdError` if an unrecognized command is passed
+    /// or if an invalid argument is passed to a valid command.
     fn user_cmd(
         &mut self,
         _cmd: String,
@@ -239,6 +259,19 @@ impl Layout for BSPLayout {
     /// * `view_count` - The number of views / windows / containers to divide the screen into
     /// * `usable_width` - How many pixels wide the whole display is
     /// * `usable_height` - How many pixels tall the whole display is
+    /// * `_tags` - Int representing which tags are currently active based on which
+    /// bit is toggled
+    /// * `_output` - The name of the output to generate the layout on
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use river_bsp_layout::BSPLayout;
+    /// use river_layout_toolkit::Layout;
+    ///
+    /// let mut bsp = BSPLayout::new(10, 10);
+    /// bsp.generate_layout(2, 1920, 1080, 0b000000001, "eDP-1").unwrap();
+    /// ```
     fn generate_layout(
         &mut self,
         view_count: u32,
