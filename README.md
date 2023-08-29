@@ -2,6 +2,24 @@
 
 Custom River layout manager that creates a Binary Space Partition / Grid layout using river-layout-toolkit
 
+3 Window Example:
++----------------+----------------+
+|                |                |
+|                |                |
+|                +----------------+
+|                |                |
+|                |                |
++----------------+----------------+
+
+4 Window Example:
++----------------+----------------+
+|                |                |
+|                |                |
++----------------+----------------+
+|                |                |
+|                |                |
++----------------+----------------+
+
 ## Installing 
 
 ```bash
