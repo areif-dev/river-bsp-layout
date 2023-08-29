@@ -275,7 +275,7 @@ checksum = "dbb5fb1acd8a1a18b3dd5be62d25485eb770e05afb408a9627d14d451bae12da"
 
 [[package]]
 name = "river-bsp-layout"
-version = "1.0.0"
+version = "1.1.0"
 dependencies = [
  "clap",
  "regex",
