@@ -34,6 +34,13 @@ pub struct BSPLayout {
 }
 
 impl BSPLayout {
+    pub fn new(outer_gap: u32, inner_gap: u32) -> BSPLayout {
+        BSPLayout {
+            outer_gap,
+            inner_gap,
+        }
+    }
+
     /// Perform the recursive division by two to evenly divide the screen as best
     /// as possible
     ///
