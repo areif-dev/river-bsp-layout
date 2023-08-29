@@ -169,7 +169,7 @@ impl BSPLayout {
 }
 
 impl Layout for BSPLayout {
-    type Error = Infallible;
+    type Error = BSPLayoutError;
 
     const NAMESPACE: &'static str = "bsp-layout";
 
@@ -258,3 +258,274 @@ impl Layout for BSPLayout {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_handle_layout_helper_one_container() {
+        let bsp = BSPLayout::new(0, 0);
+        let layout = bsp.handle_layout_helper(0, 0, 1920, 1080, 1);
+
+        assert_eq!(layout.views.len(), 1);
+        let first_view = layout.views.get(0).unwrap();
+        assert_eq!(
+            (
+                first_view.x,
+                first_view.y,
+                first_view.width,
+                first_view.height
+            ),
+            (0, 0, 1920, 1080)
+        );
+    }
+
+    #[test]
+    fn test_handle_layout_helper_two_containers() {
+        let bsp = BSPLayout::new(0, 0);
+        let layout = bsp.handle_layout_helper(0, 0, 1920, 1080, 2);
+
+        assert_eq!(layout.views.len(), 2);
+        let first_view = layout.views.get(0).unwrap();
+        assert_eq!(
+            (
+                first_view.x,
+                first_view.y,
+                first_view.width,
+                first_view.height
+            ),
+            (0, 0, 960, 1080)
+        );
+
+        let second_view = layout.views.get(1).unwrap();
+        assert_eq!(
+            (
+                second_view.x,
+                second_view.y,
+                second_view.width,
+                second_view.height
+            ),
+            (960, 0, 960, 1080)
+        );
+    }
+
+    #[test]
+    fn test_handle_layout_helper_three_containers() {
+        let bsp = BSPLayout::new(0, 0);
+        let layout = bsp.handle_layout_helper(0, 0, 1920, 1080, 3);
+
+        assert_eq!(layout.views.len(), 3);
+        let first_view = layout.views.get(0).unwrap();
+        assert_eq!(
+            (
+                first_view.x,
+                first_view.y,
+                first_view.width,
+                first_view.height
+            ),
+            (0, 0, 960, 1080)
+        );
+
+        let second_view = layout.views.get(1).unwrap();
+        assert_eq!(
+            (
+                second_view.x,
+                second_view.y,
+                second_view.width,
+                second_view.height
+            ),
+            (960, 0, 960, 540)
+        );
+
+        let third_view = layout.views.get(2).unwrap();
+        assert_eq!(
+            (
+                third_view.x,
+                third_view.y,
+                third_view.width,
+                third_view.height
+            ),
+            (960, 540, 960, 540)
+        );
+    }
+
+    #[test]
+    fn test_handle_layout_helper_four_containers() {
+        let bsp = BSPLayout::new(0, 0);
+        let layout = bsp.handle_layout_helper(0, 0, 1920, 1080, 4);
+
+        assert_eq!(layout.views.len(), 4);
+        let first_view = layout.views.get(0).unwrap();
+        assert_eq!(
+            (
+                first_view.x,
+                first_view.y,
+                first_view.width,
+                first_view.height
+            ),
+            (0, 0, 960, 540)
+        );
+
+        let second_view = layout.views.get(1).unwrap();
+        assert_eq!(
+            (
+                second_view.x,
+                second_view.y,
+                second_view.width,
+                second_view.height
+            ),
+            (0, 540, 960, 540)
+        );
+
+        let third_view = layout.views.get(2).unwrap();
+        assert_eq!(
+            (
+                third_view.x,
+                third_view.y,
+                third_view.width,
+                third_view.height
+            ),
+            (960, 0, 960, 540)
+        );
+
+        let fourth_view = layout.views.get(3).unwrap();
+        assert_eq!(
+            (
+                fourth_view.x,
+                fourth_view.y,
+                fourth_view.width,
+                fourth_view.height
+            ),
+            (960, 540, 960, 540)
+        );
+    }
+
+    #[test]
+    fn test_generate_layout_no_gaps() {
+        let mut bsp = BSPLayout::new(0, 0);
+        let layout = bsp.generate_layout(4, 1920, 1080, 1, "eDP-1").unwrap();
+
+        assert_eq!(layout.views.len(), 4);
+        let first_view = layout.views.get(0).unwrap();
+        assert_eq!(
+            (
+                first_view.x,
+                first_view.y,
+                first_view.width,
+                first_view.height
+            ),
+            (0, 0, 960, 540)
+        );
+
+        let second_view = layout.views.get(1).unwrap();
+        assert_eq!(
+            (
+                second_view.x,
+                second_view.y,
+                second_view.width,
+                second_view.height
+            ),
+            (0, 540, 960, 540)
+        );
+
+        let third_view = layout.views.get(2).unwrap();
+        assert_eq!(
+            (
+                third_view.x,
+                third_view.y,
+                third_view.width,
+                third_view.height
+            ),
+            (960, 0, 960, 540)
+        );
+
+        let fourth_view = layout.views.get(3).unwrap();
+        assert_eq!(
+            (
+                fourth_view.x,
+                fourth_view.y,
+                fourth_view.width,
+                fourth_view.height
+            ),
+            (960, 540, 960, 540)
+        );
+    }
+
+    #[test]
+    fn test_generate_layout_with_gaps() {
+        let mut bsp = BSPLayout::new(10, 20);
+        let layout = bsp.generate_layout(4, 1920, 1080, 1, "eDP-1").unwrap();
+
+        assert_eq!(layout.views.len(), 4);
+        let first_view = layout.views.get(0).unwrap();
+        assert_eq!(
+            (
+                first_view.x,
+                first_view.y,
+                first_view.width,
+                first_view.height
+            ),
+            (10, 10, 940, 520)
+        );
+
+        let second_view = layout.views.get(1).unwrap();
+        assert_eq!(
+            (
+                second_view.x,
+                second_view.y,
+                second_view.width,
+                second_view.height
+            ),
+            (10, 550, 940, 520)
+        );
+
+        let third_view = layout.views.get(2).unwrap();
+        assert_eq!(
+            (
+                third_view.x,
+                third_view.y,
+                third_view.width,
+                third_view.height
+            ),
+            (970, 10, 940, 520)
+        );
+
+        let fourth_view = layout.views.get(3).unwrap();
+        assert_eq!(
+            (
+                fourth_view.x,
+                fourth_view.y,
+                fourth_view.width,
+                fourth_view.height
+            ),
+            (970, 550, 940, 520)
+        );
+    }
+
+    #[test]
+    fn test_send_outer_gaps() {
+        let mut bsp = BSPLayout::new(0, 0);
+        bsp.user_cmd("outer-gap 5".to_string(), None, "eDP-1")
+            .unwrap();
+
+        assert_eq!(bsp.inner_gap, 0);
+        assert_eq!(bsp.outer_gap, 5);
+    }
+
+    #[test]
+    fn test_send_inner_gaps() {
+        let mut bsp = BSPLayout::new(0, 0);
+        bsp.user_cmd("inner-gap 5".to_string(), None, "eDP-1")
+            .unwrap();
+
+        assert_eq!(bsp.inner_gap, 5);
+        assert_eq!(bsp.outer_gap, 0);
+    }
+
+    #[test]
+    fn test_invalid_user_command() {
+        let mut bsp = BSPLayout::new(0, 0);
+        let res = bsp.user_cmd("foo-bar 5678".to_string(), None, "eDP-1");
+        assert!(res.is_err());
+    }
+}
