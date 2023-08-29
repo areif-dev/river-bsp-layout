@@ -2,6 +2,12 @@
 
 Custom River layout manager that creates a Binary Space Partition / Grid layout using river-layout-toolkit
 
+## Installing 
+
+```bash
+cargo install river-bsp-layout --locked
+```
+
 ## Building
 
 * Make sure you have `cargo` installed. The recommended means of installation is with `rustup.sh` from https://www.rust-lang.org/tools/install
