@@ -4,6 +4,11 @@ version = "1.1.0"
 edition = "2021"
 author = "AJ Reifsnyder <ajreifsnyder@protonmail.com>"
 about = "Binary space partitioned layout for the tiling Wayland compositor River."
+license = "GPL-3.0"
+description = "Binary space partitioned layout for the tiling Wayland compositor River."
+homepage = "https://github.com/areif-dev/river-bsp-layout"
+repository = "https://github.com/areif-dev/river-bsp-layout"
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
