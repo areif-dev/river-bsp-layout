@@ -2,9 +2,12 @@ use regex::Regex;
 use river_layout_toolkit::{GeneratedLayout, Layout, Rectangle};
 use std::fmt::Display;
 
+/// Wrapper for errors relating to the creation or operation of a `BSPLayout`
 #[non_exhaustive]
 #[derive(Debug)]
 pub enum BSPLayoutError {
+
+    /// Encountered when a failure occurs in `user_cmd`
     CmdError(String),
 }
 
@@ -20,34 +23,29 @@ impl std::error::Error for BSPLayoutError {}
 /// divides the screen in half. The split will alternate between vertical and horizontal
 /// based on which side of the container is longer. This will result in a grid like
 /// layout with more-or-less equal sized windows even distributed across the screen
-///
-/// 3 Window Example:
-/// +---------------+---------------+
-/// |               |               |
-/// |               |               |
-/// |               |               |
-/// +               +---------------+
-/// |               |               |
-/// |               |               |
-/// |               |               |
-/// +---------------+---------------+
-///
-/// 4 Window Example:
-/// +---------------+---------------+
-/// |               |               |
-/// |               |               |
-/// |               |               |
-/// +---------------+---------------+
-/// |               |               |
-/// |               |               |
-/// |               |               |
-/// +---------------+---------------+
 pub struct BSPLayout {
+
+    /// Number of pixels to put between the edge of the display and each window
     pub outer_gap: u32,
+
+    /// Number of pixels to put between the inside edge of adjacent windows
     pub inner_gap: u32,
 }
 
 impl BSPLayout {
+
+    /// Initialize a new instance of BSPLayout with given inner and outer gaps
+    ///
+    /// # Arguments 
+    ///
+    /// * `outer_gap` - Number of pixels to put between the edge of the display and the outside
+    /// edge of the nearest windows 
+    ///
+    /// * `inner_gap` - Number of pixels to put between the inside edge of adjacent windows 
+    ///
+    /// # Returns 
+    ///
+    /// A new `BSPLayout`
     pub fn new(outer_gap: u32, inner_gap: u32) -> BSPLayout {
         BSPLayout {
             outer_gap,
@@ -180,7 +178,6 @@ impl Layout for BSPLayout {
     /// # Examples
     ///
     /// ```
-    /// // Sets the
     /// use river_bsp_layout::BSPLayout;
     /// use river_layout_toolkit::Layout;
     ///
