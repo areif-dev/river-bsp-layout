@@ -1,6 +1,6 @@
 The following open source libraries are used by River BSP Layout:
 
-* `clap` - https://github.com/clap-rs/clap 
+- `clap` - https://github.com/clap-rs/clap
 
 Copyright (c) Individual contributors
 
@@ -22,7 +22,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-* `regex` - https://github.com/rust-lang/regex
+- `regex` - https://github.com/rust-lang/regex
 
 Copyright (c) 2014 The Rust Project Developers
 
@@ -50,7 +50,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 
-`river-layout-toolkit` - https://github.com/MaxVerevkin/river-layout-toolkit
+- `river-layout-toolkit` - https://github.com/MaxVerevkin/river-layout-toolkit
 
 MIT License
 
