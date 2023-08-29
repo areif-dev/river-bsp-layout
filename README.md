@@ -3,6 +3,7 @@
 Custom River layout manager that creates a Binary Space Partition / Grid layout using river-layout-toolkit
 
 3 Window Example:
+```
 +----------------+----------------+
 |                |                |
 |                |                |
@@ -10,8 +11,10 @@ Custom River layout manager that creates a Binary Space Partition / Grid layout 
 |                |                |
 |                |                |
 +----------------+----------------+
+```
 
 4 Window Example:
+```
 +----------------+----------------+
 |                |                |
 |                |                |
@@ -19,6 +22,7 @@ Custom River layout manager that creates a Binary Space Partition / Grid layout 
 |                |                |
 |                |                |
 +----------------+----------------+
+```
 
 ## Installing 
 
