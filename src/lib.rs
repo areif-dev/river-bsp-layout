@@ -1,6 +1,20 @@
 use regex::Regex;
 use river_layout_toolkit::{GeneratedLayout, Layout, Rectangle};
-use std::convert::Infallible;
+use std::fmt::Display;
+
+#[non_exhaustive]
+#[derive(Debug)]
+pub enum BSPLayoutError {
+    CmdError(String),
+}
+
+impl Display for BSPLayoutError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
+impl std::error::Error for BSPLayoutError {}
 
 /// Create a Binary Space Partitioned layout. Specifically, this layout recursively
 /// divides the screen in half. The split will alternate between vertical and horizontal
@@ -172,15 +186,48 @@ impl Layout for BSPLayout {
         let inner_re = Regex::new(r"^inner-gap \d+$").unwrap();
 
         if outer_re.is_match(&_cmd) {
-            let new_gap_str = _cmd.split(" ").last().unwrap();
-            let new_gap = new_gap_str.parse::<u32>().unwrap();
+            let new_gap_str = match _cmd.split(" ").last() {
+                Some(s) => s,
+                None => {
+                    return Err(BSPLayoutError::CmdError(
+                        "outer-gap missing argument".to_string(),
+                    ));
+                }
+            };
+            let new_gap = match new_gap_str.parse::<u32>() {
+                Ok(i) => i,
+                Err(_) => {
+                    return Err(BSPLayoutError::CmdError(
+                        "Could not parse u32 from outer-gap argument".to_string(),
+                    ));
+                }
+            };
 
             self.outer_gap = new_gap;
         } else if inner_re.is_match(&_cmd) {
-            let new_gap_str = _cmd.split(" ").last().unwrap();
-            let new_gap = new_gap_str.parse::<u32>().unwrap();
+            let new_gap_str = match _cmd.split(" ").last() {
+                Some(s) => s,
+                None => {
+                    return Err(BSPLayoutError::CmdError(
+                        "inner-gap missing argument".to_string(),
+                    ))
+                }
+            };
+            let new_gap = match new_gap_str.parse::<u32>() {
+                Ok(i) => i,
+                Err(_) => {
+                    return Err(BSPLayoutError::CmdError(
+                        "Could not parse u32 from inner-gap argument".to_string(),
+                    ))
+                }
+            };
 
             self.inner_gap = new_gap;
+        } else {
+            return Err(BSPLayoutError::CmdError(format!(
+                "Command not recognized: {}",
+                _cmd
+            )));
         }
         Ok(())
     }
