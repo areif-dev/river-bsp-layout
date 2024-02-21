@@ -26,6 +26,18 @@ Custom River layout manager that creates a Binary Space Partition / Grid layout 
 
 ## Installing 
 
+### Fedora 
+
+```bash 
+dnf copr enable areif-dev/river-bsp-layout
+```
+
+```bash 
+dnf install river-bsp-layout
+```
+
+### Other - Cargo 
+
 ```bash
 cargo install river-bsp-layout --locked
 ```
