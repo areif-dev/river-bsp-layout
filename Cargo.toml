@@ -16,3 +16,12 @@ readme = "README.md"
 clap = { version = "4.5", features = ["derive"] }
 regex = "1.10"
 river-layout-toolkit = "0.1"
+
+[package.metadata.rpm]
+package = "river-bsp-layout"
+
+[package.metadata.rpm.cargo]
+buildflags = ["--release"]
+
+[package.metadata.rpm.targets]
+river-bsp-layout = { path = "/usr/bin/river-bsp-layout" }
