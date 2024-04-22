@@ -168,6 +168,25 @@ impl BSPLayout {
     }
 }
 
+fn parse_gap_cmd(cmd_str: &str) -> Result<u32, BSPLayoutError> {
+    let new_gap_str = match cmd_str.split(" ").last() {
+        Some(s) => s,
+        None => {
+            return Err(BSPLayoutError::CmdError(
+                "Gap command missing argument".to_string(),
+            ));
+        }
+    };
+    Ok(match new_gap_str.parse::<u32>() {
+        Ok(i) => i,
+        Err(_) => {
+            return Err(BSPLayoutError::CmdError(
+                "Could not parse u32 from gap argument".to_string(),
+            ));
+        }
+    })
+}
+
 impl Layout for BSPLayout {
     type Error = BSPLayoutError;
 
@@ -201,47 +220,29 @@ impl Layout for BSPLayout {
         _tags: Option<u32>,
         _output: &str,
     ) -> Result<(), Self::Error> {
-        let outer_re = Regex::new(r"^outer-gap \d+$").unwrap();
+        let og_re = Regex::new(r"^outer-gap \d+$").unwrap();
+        let ogl_re = Regex::new(r"^og-left \d+$").unwrap();
+        let ogr_re = Regex::new(r"^og-right \d+$").unwrap();
+        let ogb_re = Regex::new(r"^og-bottom \d+$").unwrap();
+        let ogt_re = Regex::new(r"^og-top \d+$").unwrap();
         let inner_re = Regex::new(r"^inner-gap \d+$").unwrap();
 
-        if outer_re.is_match(&_cmd) {
-            let new_gap_str = match _cmd.split(" ").last() {
-                Some(s) => s,
-                None => {
-                    return Err(BSPLayoutError::CmdError(
-                        "outer-gap missing argument".to_string(),
-                    ));
-                }
-            };
-            let new_gap = match new_gap_str.parse::<u32>() {
-                Ok(i) => i,
-                Err(_) => {
-                    return Err(BSPLayoutError::CmdError(
-                        "Could not parse u32 from outer-gap argument".to_string(),
-                    ));
-                }
-            };
-
-            self.outer_gap = new_gap;
+        if og_re.is_match(&_cmd) {
+            let new_gap = parse_gap_cmd(&_cmd)?;
+            self.og_top = new_gap;
+            self.og_bottom = new_gap;
+            self.og_left = new_gap;
+            self.og_right = new_gap;
+        } else if ogl_re.is_match(&_cmd) {
+            self.og_left = parse_gap_cmd(&_cmd)?;
+        } else if ogr_re.is_match(&_cmd) {
+            self.og_right = parse_gap_cmd(&_cmd)?;
+        } else if ogb_re.is_match(&_cmd) {
+            self.og_bottom = parse_gap_cmd(&_cmd)?;
+        } else if ogt_re.is_match(&_cmd) {
+            self.og_top = parse_gap_cmd(&_cmd)?;
         } else if inner_re.is_match(&_cmd) {
-            let new_gap_str = match _cmd.split(" ").last() {
-                Some(s) => s,
-                None => {
-                    return Err(BSPLayoutError::CmdError(
-                        "inner-gap missing argument".to_string(),
-                    ))
-                }
-            };
-            let new_gap = match new_gap_str.parse::<u32>() {
-                Ok(i) => i,
-                Err(_) => {
-                    return Err(BSPLayoutError::CmdError(
-                        "Could not parse u32 from inner-gap argument".to_string(),
-                    ))
-                }
-            };
-
-            self.inner_gap = new_gap;
+            self.inner_gap = parse_gap_cmd(&_cmd)?;
         } else {
             return Err(BSPLayoutError::CmdError(format!(
                 "Command not recognized: {}",
