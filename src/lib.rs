@@ -6,7 +6,6 @@ use std::fmt::Display;
 #[non_exhaustive]
 #[derive(Debug)]
 pub enum BSPLayoutError {
-
     /// Encountered when a failure occurs in `user_cmd`
     CmdError(String),
 }
@@ -24,32 +23,35 @@ impl std::error::Error for BSPLayoutError {}
 /// based on which side of the container is longer. This will result in a grid like
 /// layout with more-or-less equal sized windows even distributed across the screen
 pub struct BSPLayout {
-
-    /// Number of pixels to put between the edge of the display and each window
-    pub outer_gap: u32,
-
     /// Number of pixels to put between the inside edge of adjacent windows
     pub inner_gap: u32,
+
+    /// Number of pixels to put between the left screen edge and the adjacent windows
+    pub og_left: u32,
+
+    /// Number of pixels to put between the right screen edge and the adjacent windows
+    pub og_right: u32,
+
+    /// Number of pixels to put between the bottom screen edge and the adjacent windows
+    pub og_bottom: u32,
+
+    /// Number of pixels to put between the top screen edge and the adjacent windows
+    pub og_top: u32,
 }
 
 impl BSPLayout {
-
     /// Initialize a new instance of BSPLayout with given inner and outer gaps
     ///
-    /// # Arguments 
-    ///
-    /// * `outer_gap` - Number of pixels to put between the edge of the display and the outside
-    /// edge of the nearest windows 
-    ///
-    /// * `inner_gap` - Number of pixels to put between the inside edge of adjacent windows 
-    ///
-    /// # Returns 
+    /// # Returns
     ///
     /// A new `BSPLayout`
-    pub fn new(outer_gap: u32, inner_gap: u32) -> BSPLayout {
+    pub fn new() -> BSPLayout {
         BSPLayout {
-            outer_gap,
-            inner_gap,
+            inner_gap: 5,
+            og_left: 5,
+            og_right: 5,
+            og_top: 5,
+            og_bottom: 5,
         }
     }
 
