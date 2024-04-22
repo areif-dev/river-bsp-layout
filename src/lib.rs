@@ -55,6 +55,18 @@ impl BSPLayout {
         }
     }
 
+    /// Sets all sides of outer gap to `new_gap`
+    ///
+    /// # Arguments
+    ///
+    /// * `new_gap` - The value to assign for the gap on all outer edges
+    pub fn set_all_outer_gaps(&mut self, new_gap: u32) {
+        self.og_top = new_gap;
+        self.og_bottom = new_gap;
+        self.og_left = new_gap;
+        self.og_right = new_gap;
+    }
+
     /// Perform the recursive division by two to evenly divide the screen as best
     /// as possible
     ///
@@ -229,10 +241,7 @@ impl Layout for BSPLayout {
 
         if og_re.is_match(&_cmd) {
             let new_gap = parse_gap_cmd(&_cmd)?;
-            self.og_top = new_gap;
-            self.og_bottom = new_gap;
-            self.og_left = new_gap;
-            self.og_right = new_gap;
+            self.set_all_outer_gaps(new_gap);
         } else if ogl_re.is_match(&_cmd) {
             self.og_left = parse_gap_cmd(&_cmd)?;
         } else if ogr_re.is_match(&_cmd) {
@@ -437,10 +446,7 @@ mod tests {
     fn test_generate_layout_no_gaps() {
         let mut bsp = BSPLayout::new();
         bsp.inner_gap = 0;
-        bsp.og_top = 0;
-        bsp.og_left = 0;
-        bsp.og_right = 0;
-        bsp.og_bottom = 0;
+        bsp.set_all_outer_gaps(0);
         let layout = bsp.generate_layout(4, 1920, 1080, 1, "eDP-1").unwrap();
 
         assert_eq!(layout.views.len(), 4);
@@ -492,10 +498,8 @@ mod tests {
     #[test]
     fn test_generate_layout_with_gaps() {
         let mut bsp = BSPLayout::new();
+        bsp.set_all_outer_gaps(10);
         bsp.og_top = 0;
-        bsp.og_bottom = 10;
-        bsp.og_left = 10;
-        bsp.og_right = 10;
         bsp.inner_gap = 20;
         let layout = bsp.generate_layout(4, 1920, 1080, 1, "eDP-1").unwrap();
 
