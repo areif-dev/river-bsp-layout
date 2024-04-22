@@ -39,6 +39,12 @@ struct Cli {
 
 fn main() {
     let cli = Cli::parse();
-    let layout = BSPLayout::new(cli.outer_gap, cli.inner_gap);
+    let mut layout = BSPLayout::new();
+    layout.inner_gap = cli.inner_gap;
+    layout.og_left = cli.og_left.unwrap_or(cli.default_outer_gap);
+    layout.og_right = cli.og_right.unwrap_or(cli.default_outer_gap);
+    layout.og_bottom = cli.og_bottom.unwrap_or(cli.default_outer_gap);
+    layout.og_top = cli.og_top.unwrap_or(cli.default_outer_gap);
+
     run(layout).unwrap();
 }
