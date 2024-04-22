@@ -281,10 +281,10 @@ impl Layout for BSPLayout {
         _output: &str,
     ) -> Result<GeneratedLayout, Self::Error> {
         let layout = self.handle_layout_helper(
-            self.outer_gap as i32,
-            self.outer_gap as i32,
-            usable_width - self.outer_gap * 2,
-            usable_height - self.outer_gap * 2,
+            self.og_left as i32,
+            self.og_top as i32,
+            usable_width - self.og_left - self.og_right,
+            usable_height - self.og_top - self.og_bottom,
             view_count,
         );
         Ok(layout)
