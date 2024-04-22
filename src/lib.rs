@@ -180,6 +180,19 @@ impl BSPLayout {
     }
 }
 
+/// Convenience function for parsing the layout command string and extracting the integer argument
+///
+/// # Arguments
+///
+/// * `cmd_str` - The string passed to the user_cmd function that is to be parsed
+///
+/// # Returns
+///
+/// If the command is well formed, return the contained gap argument
+///
+/// # Errors
+///
+/// If the gap command passed in does not contain an integer argument, returns a `BSPLayoutError`
 fn parse_gap_cmd(cmd_str: &str) -> Result<u32, BSPLayoutError> {
     let new_gap_str = match cmd_str.split(" ").last() {
         Some(s) => s,
