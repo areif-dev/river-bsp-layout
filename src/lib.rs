@@ -297,7 +297,7 @@ mod tests {
 
     #[test]
     fn test_handle_layout_helper_one_container() {
-        let bsp = BSPLayout::new(0, 0);
+        let bsp = BSPLayout::new();
         let layout = bsp.handle_layout_helper(0, 0, 1920, 1080, 1);
 
         assert_eq!(layout.views.len(), 1);
@@ -315,7 +315,7 @@ mod tests {
 
     #[test]
     fn test_handle_layout_helper_two_containers() {
-        let bsp = BSPLayout::new(0, 0);
+        let bsp = BSPLayout::new();
         let layout = bsp.handle_layout_helper(0, 0, 1920, 1080, 2);
 
         assert_eq!(layout.views.len(), 2);
@@ -344,7 +344,7 @@ mod tests {
 
     #[test]
     fn test_handle_layout_helper_three_containers() {
-        let bsp = BSPLayout::new(0, 0);
+        let bsp = BSPLayout::new();
         let layout = bsp.handle_layout_helper(0, 0, 1920, 1080, 3);
 
         assert_eq!(layout.views.len(), 3);
@@ -384,7 +384,7 @@ mod tests {
 
     #[test]
     fn test_handle_layout_helper_four_containers() {
-        let bsp = BSPLayout::new(0, 0);
+        let bsp = BSPLayout::new();
         let layout = bsp.handle_layout_helper(0, 0, 1920, 1080, 4);
 
         assert_eq!(layout.views.len(), 4);
@@ -435,7 +435,12 @@ mod tests {
 
     #[test]
     fn test_generate_layout_no_gaps() {
-        let mut bsp = BSPLayout::new(0, 0);
+        let mut bsp = BSPLayout::new();
+        bsp.inner_gap = 0;
+        bsp.og_top = 0;
+        bsp.og_left = 0;
+        bsp.og_right = 0;
+        bsp.og_bottom = 0;
         let layout = bsp.generate_layout(4, 1920, 1080, 1, "eDP-1").unwrap();
 
         assert_eq!(layout.views.len(), 4);
@@ -486,7 +491,12 @@ mod tests {
 
     #[test]
     fn test_generate_layout_with_gaps() {
-        let mut bsp = BSPLayout::new(10, 20);
+        let mut bsp = BSPLayout::new();
+        bsp.og_top = 0;
+        bsp.og_bottom = 10;
+        bsp.og_left = 10;
+        bsp.og_right = 10;
+        bsp.inner_gap = 20;
         let layout = bsp.generate_layout(4, 1920, 1080, 1, "eDP-1").unwrap();
 
         assert_eq!(layout.views.len(), 4);
@@ -498,7 +508,7 @@ mod tests {
                 first_view.width,
                 first_view.height
             ),
-            (10, 10, 940, 520)
+            (10, 0, 940, 530)
         );
 
         let second_view = layout.views.get(1).unwrap();
@@ -509,7 +519,7 @@ mod tests {
                 second_view.width,
                 second_view.height
             ),
-            (10, 550, 940, 520)
+            (10, 560, 940, 530)
         );
 
         let third_view = layout.views.get(2).unwrap();
@@ -520,7 +530,7 @@ mod tests {
                 third_view.width,
                 third_view.height
             ),
-            (970, 10, 940, 520)
+            (970, 0, 940, 530)
         );
 
         let fourth_view = layout.views.get(3).unwrap();
@@ -531,33 +541,39 @@ mod tests {
                 fourth_view.width,
                 fourth_view.height
             ),
-            (970, 550, 940, 520)
+            (970, 560, 940, 530)
         );
     }
 
     #[test]
-    fn test_send_outer_gaps() {
-        let mut bsp = BSPLayout::new(0, 0);
-        bsp.user_cmd("outer-gap 5".to_string(), None, "eDP-1")
+    fn test_send_user_cmds() {
+        let mut bsp = BSPLayout::new();
+        bsp.user_cmd("inner-gap 0".to_string(), None, "eDP-1")
             .unwrap();
-
         assert_eq!(bsp.inner_gap, 0);
-        assert_eq!(bsp.outer_gap, 5);
-    }
 
-    #[test]
-    fn test_send_inner_gaps() {
-        let mut bsp = BSPLayout::new(0, 0);
-        bsp.user_cmd("inner-gap 5".to_string(), None, "eDP-1")
+        bsp.user_cmd("outer-gap 10".to_string(), None, "eDP-1")
             .unwrap();
+        assert_eq!(bsp.og_top, 10);
+        assert_eq!(bsp.og_left, 10);
+        assert_eq!(bsp.og_right, 10);
+        assert_eq!(bsp.og_bottom, 10);
 
-        assert_eq!(bsp.inner_gap, 5);
-        assert_eq!(bsp.outer_gap, 0);
-    }
+        bsp.user_cmd("og-left 1".to_string(), None, "eDP-1")
+            .unwrap();
+        assert_eq!(bsp.og_left, 1);
 
-    #[test]
-    fn test_invalid_user_command() {
-        let mut bsp = BSPLayout::new(0, 0);
+        bsp.user_cmd("og-right 1".to_string(), None, "eDP-1")
+            .unwrap();
+        assert_eq!(bsp.og_right, 1);
+
+        bsp.user_cmd("og-top 1".to_string(), None, "eDP-1").unwrap();
+        assert_eq!(bsp.og_top, 1);
+
+        bsp.user_cmd("og-bottom 1".to_string(), None, "eDP-1")
+            .unwrap();
+        assert_eq!(bsp.og_bottom, 1);
+
         let res = bsp.user_cmd("foo-bar 5678".to_string(), None, "eDP-1");
         assert!(res.is_err());
     }
