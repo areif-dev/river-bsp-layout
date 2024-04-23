@@ -23,8 +23,17 @@ impl std::error::Error for BSPLayoutError {}
 /// based on which side of the container is longer. This will result in a grid like
 /// layout with more-or-less equal sized windows even distributed across the screen
 pub struct BSPLayout {
-    /// Number of pixels to put between the inside edge of adjacent windows
-    pub inner_gap: u32,
+    /// Number of pixels to put between the left inside edge of adjacent windows
+    pub ig_left: u32,
+
+    /// Number of pixels to put between the right inside edge of adjacent windows
+    pub ig_right: u32,
+
+    /// Number of pixels to put between the bottom inside edge of adjacent windows
+    pub ig_bottom: u32,
+
+    /// Number of pixels to put between the top inside edge of adjacent windows
+    pub ig_top: u32,
 
     /// Number of pixels to put between the left screen edge and the adjacent windows
     pub og_left: u32,
@@ -47,11 +56,14 @@ impl BSPLayout {
     /// A new `BSPLayout`
     pub fn new() -> BSPLayout {
         BSPLayout {
-            inner_gap: 5,
-            og_left: 5,
-            og_right: 5,
-            og_top: 5,
-            og_bottom: 5,
+            ig_left: 5,
+            ig_right: 5,
+            ig_bottom: 5,
+            ig_top: 5,
+            og_left: 10,
+            og_right: 10,
+            og_top: 10,
+            og_bottom: 10,
         }
     }
 
@@ -65,6 +77,18 @@ impl BSPLayout {
         self.og_bottom = new_gap;
         self.og_left = new_gap;
         self.og_right = new_gap;
+    }
+
+    /// Sets all inner gaps to `new_gap`
+    ///
+    /// # Arguments
+    ///
+    /// * `new_gap` - The value to assign for the gap on all inner edges between windows
+    pub fn set_all_inner_gaps(&mut self, new_gap: u32) {
+        self.ig_top = new_gap;
+        self.ig_left = new_gap;
+        self.ig_right = new_gap;
+        self.ig_bottom = new_gap;
     }
 
     /// Perform the recursive division by two to evenly divide the screen as best
@@ -138,27 +162,25 @@ impl BSPLayout {
             /* Vertical Split */
 
             // In case the width of the area is odd, add one extra pixel if needed
-            h1_width =
-                canvas_width / 2 + canvas_width % 2 - self.inner_gap / 2 - self.inner_gap % 2;
+            h1_width = canvas_width / 2 + canvas_width % 2 - self.ig_right;
             h1_height = canvas_height;
 
-            h2_width = canvas_width / 2 - self.inner_gap / 2;
+            h2_width = canvas_width / 2 - self.ig_left;
             h2_height = canvas_height;
-            h2_x = h1_width as i32 + origin_x + self.inner_gap as i32;
+            h2_x = h1_width as i32 + origin_x + (self.ig_left + self.ig_right) as i32;
             h2_y = origin_y;
         } else {
             /* Horizontal Split */
 
             h1_width = canvas_width;
-            h1_height =
-                canvas_height / 2 + canvas_height % 2 - self.inner_gap / 2 - self.inner_gap % 2;
+            h1_height = canvas_height / 2 + canvas_height % 2 - self.ig_bottom;
 
             h2_width = canvas_width;
 
             // In case the width of the area is odd, add one extra pixel if needed
-            h2_height = canvas_height / 2 - self.inner_gap / 2;
+            h2_height = canvas_height / 2 - self.ig_top;
             h2_x = origin_x;
-            h2_y = h1_height as i32 + origin_y + self.inner_gap as i32;
+            h2_y = h1_height as i32 + origin_y + (self.ig_bottom + self.ig_top) as i32;
         }
 
         /* Recursively split the two halves of the window */
@@ -229,7 +251,7 @@ impl Layout for BSPLayout {
     ///
     /// // Initialize layout with 0 gaps
     /// let mut bsp = BSPLayout::new();
-    /// bsp.inner_gap = 0;
+    /// bsp.set_all_inner_gaps(0);
     /// bsp.set_all_outer_gaps(0);
     ///
     /// // Set gap between windows and the monitor edge to be 5 pixels
@@ -256,10 +278,13 @@ impl Layout for BSPLayout {
         let ogb_re = Regex::new(r"^og-bottom \d+$").unwrap();
         let ogt_re = Regex::new(r"^og-top \d+$").unwrap();
         let inner_re = Regex::new(r"^inner-gap \d+$").unwrap();
+        let igl_re = Regex::new(r"^ig-left \d+$").unwrap();
+        let igr_re = Regex::new(r"^ig-right \d+$").unwrap();
+        let igb_re = Regex::new(r"^ig-bottom \d+$").unwrap();
+        let igt_re = Regex::new(r"^ig-top \d+$").unwrap();
 
         if og_re.is_match(&_cmd) {
-            let new_gap = parse_gap_cmd(&_cmd)?;
-            self.set_all_outer_gaps(new_gap);
+            self.set_all_outer_gaps(parse_gap_cmd(&_cmd)?);
         } else if ogl_re.is_match(&_cmd) {
             self.og_left = parse_gap_cmd(&_cmd)?;
         } else if ogr_re.is_match(&_cmd) {
@@ -269,7 +294,15 @@ impl Layout for BSPLayout {
         } else if ogt_re.is_match(&_cmd) {
             self.og_top = parse_gap_cmd(&_cmd)?;
         } else if inner_re.is_match(&_cmd) {
-            self.inner_gap = parse_gap_cmd(&_cmd)?;
+            self.set_all_inner_gaps(parse_gap_cmd(&_cmd)?);
+        } else if igl_re.is_match(&_cmd) {
+            self.ig_left = parse_gap_cmd(&_cmd)?;
+        } else if igr_re.is_match(&_cmd) {
+            self.ig_right = parse_gap_cmd(&_cmd)?;
+        } else if igb_re.is_match(&_cmd) {
+            self.ig_bottom = parse_gap_cmd(&_cmd)?;
+        } else if igt_re.is_match(&_cmd) {
+            self.ig_top = parse_gap_cmd(&_cmd)?;
         } else {
             return Err(BSPLayoutError::CmdError(format!(
                 "Command not recognized: {}",
@@ -344,7 +377,7 @@ mod tests {
     fn test_handle_layout_helper_two_containers() {
         let mut bsp = BSPLayout::new();
         bsp.set_all_outer_gaps(0);
-        bsp.inner_gap = 0;
+        bsp.set_all_inner_gaps(0);
         let layout = bsp.handle_layout_helper(0, 0, 1920, 1080, 2);
 
         assert_eq!(layout.views.len(), 2);
@@ -375,7 +408,7 @@ mod tests {
     fn test_handle_layout_helper_three_containers() {
         let mut bsp = BSPLayout::new();
         bsp.set_all_outer_gaps(0);
-        bsp.inner_gap = 0;
+        bsp.set_all_inner_gaps(0);
         let layout = bsp.handle_layout_helper(0, 0, 1920, 1080, 3);
 
         assert_eq!(layout.views.len(), 3);
@@ -417,7 +450,7 @@ mod tests {
     fn test_handle_layout_helper_four_containers() {
         let mut bsp = BSPLayout::new();
         bsp.set_all_outer_gaps(0);
-        bsp.inner_gap = 0;
+        bsp.set_all_inner_gaps(0);
         let layout = bsp.handle_layout_helper(0, 0, 1920, 1080, 4);
 
         assert_eq!(layout.views.len(), 4);
@@ -469,7 +502,7 @@ mod tests {
     #[test]
     fn test_generate_layout_no_gaps() {
         let mut bsp = BSPLayout::new();
-        bsp.inner_gap = 0;
+        bsp.set_all_inner_gaps(0);
         bsp.set_all_outer_gaps(0);
         let layout = bsp.generate_layout(4, 1920, 1080, 1, "eDP-1").unwrap();
 
@@ -524,7 +557,7 @@ mod tests {
         let mut bsp = BSPLayout::new();
         bsp.set_all_outer_gaps(10);
         bsp.og_top = 0;
-        bsp.inner_gap = 20;
+        bsp.set_all_inner_gaps(10);
         let layout = bsp.generate_layout(4, 1920, 1080, 1, "eDP-1").unwrap();
 
         assert_eq!(layout.views.len(), 4);
@@ -578,7 +611,25 @@ mod tests {
         let mut bsp = BSPLayout::new();
         bsp.user_cmd("inner-gap 0".to_string(), None, "eDP-1")
             .unwrap();
-        assert_eq!(bsp.inner_gap, 0);
+        assert_eq!(bsp.ig_top, 0);
+        assert_eq!(bsp.ig_bottom, 0);
+        assert_eq!(bsp.ig_left, 0);
+        assert_eq!(bsp.ig_right, 0);
+
+        bsp.user_cmd("ig-left 1".to_string(), None, "eDP-1")
+            .unwrap();
+        assert_eq!(bsp.ig_left, 1);
+
+        bsp.user_cmd("ig-right 1".to_string(), None, "eDP-1")
+            .unwrap();
+        assert_eq!(bsp.ig_right, 1);
+
+        bsp.user_cmd("ig-top 1".to_string(), None, "eDP-1").unwrap();
+        assert_eq!(bsp.ig_top, 1);
+
+        bsp.user_cmd("ig-bottom 1".to_string(), None, "eDP-1")
+            .unwrap();
+        assert_eq!(bsp.ig_bottom, 1);
 
         bsp.user_cmd("outer-gap 10".to_string(), None, "eDP-1")
             .unwrap();
