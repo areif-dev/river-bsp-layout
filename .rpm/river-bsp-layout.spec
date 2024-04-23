@@ -4,9 +4,9 @@
 
 Name: river-bsp-layout
 Summary: Binary space partitioned layout for the tiling Wayland compositor River.
-Version: 1.1.2
-Release: 1%{?dist}
-License: GPL-3.0
+Version: @@VERSION@@
+Release: @@RELEASE@@%{?dist}
+License: gpl-3.0
 Group: Applications/System
 Source0: %{name}-%{version}.tar.gz
 URL: https://github.com/areif-dev/river-bsp-layout
