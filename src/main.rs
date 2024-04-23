@@ -8,7 +8,7 @@ use river_layout_toolkit::run;
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Cli {
-    /// The number of pixels to pad each inner edge of a window by default. Defaults to 0
+    /// The number of pixels to pad each inner edge of a window by default.
     #[arg(short = 'i', long = "inner-gap", default_value_t = 0)]
     default_inner_gap: u32,
 
@@ -32,7 +32,7 @@ struct Cli {
     #[arg(long, short = 't')]
     ig_top: Option<u32>,
 
-    /// The default size of the gap between windows and the edge of the screen. Defaults to 0
+    /// The default size of the gap between windows and the edge of the screen.
     #[arg(short = 'o', long = "outer-gap", default_value_t = 0)]
     default_outer_gap: u32,
 
