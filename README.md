@@ -1,5 +1,8 @@
 # river-bsp-layout
 
+[![Documentation](https://docs.rs/river-bsp-layout/badge.svg)](https://docs.rs/river-bsp-layout)
+[![Crate](https://img.shields.io/crates/v/river-bsp-layout.svg)](https://crates.io/crates/river-bsp-layout)
+
 ![river-bsp-layout demo](./screenshots/main.png "Demo")
 
 Custom River layout manager that creates a Binary Space Partition / Grid layout using `river-layout-toolkit`
