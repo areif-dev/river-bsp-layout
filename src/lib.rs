@@ -21,7 +21,7 @@ impl std::error::Error for BSPLayoutError {}
 /// Create a Binary Space Partitioned layout. Specifically, this layout recursively
 /// divides the screen in half. The split will alternate between vertical and horizontal
 /// based on which side of the container is longer. This will result in a grid like
-/// layout with more-or-less equal sized windows even distributed across the screen
+/// layout with more-or-less equal sized windows evenly distributed across the screen
 pub struct BSPLayout {
     /// Number of pixels to put between the left inside edge of adjacent windows
     pub ig_left: u32,
@@ -49,7 +49,8 @@ pub struct BSPLayout {
 }
 
 impl BSPLayout {
-    /// Initialize a new instance of BSPLayout with given inner and outer gaps
+    /// Initialize a new instance of BSPLayout with inner gaps of 5 pixels and outer gaps of 10
+    /// pixels on each side.
     ///
     /// # Returns
     ///
@@ -239,9 +240,9 @@ impl Layout for BSPLayout {
 
     const NAMESPACE: &'static str = "bsp-layout";
 
-    /// Handle commands passed to the layout with `send-layout-cmd`. Currently supports
-    /// "outer-gap #" and "inner-gap #", which will set set the outer and inner gaps
-    /// of the window at runtime
+    /// Handle commands passed to the layout with `send-layout-cmd`. Supports individually setting
+    /// the gaps on each side of the screen as well as inner edges. Also supports setting all outer
+    /// and inner gaps at the same time
     ///
     /// # Examples
     ///
