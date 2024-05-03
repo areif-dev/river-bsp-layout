@@ -46,11 +46,14 @@ pub struct BSPLayout {
 
     /// Number of pixels to put between the top screen edge and the adjacent windows
     pub og_top: u32,
+
+    /// The percentage of the available split area that is to be retained by the parent
+    pub split_ratio: f32,
 }
 
 impl BSPLayout {
     /// Initialize a new instance of BSPLayout with inner gaps of 5 pixels and outer gaps of 10
-    /// pixels on each side.
+    /// pixels on each side, and a split ratio of 50%.
     ///
     /// # Returns
     ///
@@ -65,6 +68,7 @@ impl BSPLayout {
             og_right: 10,
             og_top: 10,
             og_bottom: 10,
+            split_ratio: 0.5,
         }
     }
 
@@ -163,10 +167,10 @@ impl BSPLayout {
             /* Vertical Split */
 
             // In case the width of the area is odd, add one extra pixel if needed
-            h1_width = canvas_width / 2 + canvas_width % 2 - self.ig_right;
+            h1_width = (canvas_width as f32 * self.split_ratio) as u32 - self.ig_right;
             h1_height = canvas_height;
 
-            h2_width = canvas_width / 2 - self.ig_left;
+            h2_width = canvas_width - h1_width - self.ig_left - self.ig_right;
             h2_height = canvas_height;
             h2_x = h1_width as i32 + origin_x + (self.ig_left + self.ig_right) as i32;
             h2_y = origin_y;
@@ -174,12 +178,12 @@ impl BSPLayout {
             /* Horizontal Split */
 
             h1_width = canvas_width;
-            h1_height = canvas_height / 2 + canvas_height % 2 - self.ig_bottom;
+            h1_height = (canvas_height as f32 * self.split_ratio) as u32 - self.ig_bottom;
 
             h2_width = canvas_width;
 
             // In case the width of the area is odd, add one extra pixel if needed
-            h2_height = canvas_height / 2 - self.ig_top;
+            h2_height = canvas_height - h1_height - self.ig_top - self.ig_bottom;
             h2_x = origin_x;
             h2_y = h1_height as i32 + origin_y + (self.ig_bottom + self.ig_top) as i32;
         }

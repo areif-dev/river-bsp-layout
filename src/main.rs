@@ -55,6 +55,10 @@ struct Cli {
     /// `default_outer_gap` for the top side. Optional.
     #[arg(long, short = 'T')]
     og_top: Option<u32>,
+
+    /// The percentage of the available split area that is to be retained by the parent.
+    #[arg(long, short, default_value_t = 0.5)]
+    split_ratio: f32,
 }
 
 fn main() {
@@ -69,6 +73,8 @@ fn main() {
     layout.og_right = cli.og_right.unwrap_or(cli.default_outer_gap);
     layout.og_bottom = cli.og_bottom.unwrap_or(cli.default_outer_gap);
     layout.og_top = cli.og_top.unwrap_or(cli.default_outer_gap);
+
+    layout.split_ratio = cli.split_ratio;
 
     run(layout).unwrap();
 }
