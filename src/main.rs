@@ -56,9 +56,20 @@ struct Cli {
     #[arg(long, short = 'T')]
     og_top: Option<u32>,
 
-    /// The percentage of the available split area that is to be retained by the parent.
+    /// The default percentage of available area that the primary window should occupy after any
+    /// split takes place.
     #[arg(long, short, default_value_t = 0.5)]
-    split_ratio: f32,
+    default_split_ratio: f32,
+
+    /// The percentage of available area that the primary window should occupy after a horizontal
+    /// split. This will override the value of `default_split_ratio` only for horizontal splits.
+    #[arg(long, short = 'H')]
+    h_split_ratio: Option<f32>,
+
+    /// The percentage of available area that the primary window should occupy after a vertical
+    /// split. This will override the value of `default_split_ratio` only for vertical splits.
+    #[arg(long, short)]
+    v_split_ratio: Option<f32>,
 }
 
 fn main() {
@@ -74,7 +85,16 @@ fn main() {
     layout.og_bottom = cli.og_bottom.unwrap_or(cli.default_outer_gap);
     layout.og_top = cli.og_top.unwrap_or(cli.default_outer_gap);
 
-    layout.split_ratio = cli.split_ratio;
+    layout.h_split_ratio = cli.h_split_ratio.unwrap_or(cli.default_split_ratio);
+    layout.v_split_ratio = cli.v_split_ratio.unwrap_or(cli.default_split_ratio);
+    if layout.h_split_ratio < 0.0
+        || layout.h_split_ratio > 1.0
+        || layout.v_split_ratio < 0.0
+        || layout.v_split_ratio > 1.0
+    {
+        println!("Split ratios must be between 0.0 and 1.0");
+        return;
+    }
 
     run(layout).unwrap();
 }
