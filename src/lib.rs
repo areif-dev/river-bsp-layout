@@ -665,6 +665,60 @@ mod tests {
     }
 
     #[test]
+    fn test_generate_layout_split() {
+        let mut bsp = BSPLayout::new();
+        bsp.v_split_ratio = 0.4;
+        bsp.h_split_ratio = 0.4;
+        bsp.set_all_outer_gaps(0);
+        bsp.set_all_inner_gaps(0);
+        let layout = bsp.generate_layout(4, 1920, 1080, 1, "eDP-1").unwrap();
+
+        let first_view = layout.views.get(0).unwrap();
+        assert_eq!(
+            (
+                first_view.x,
+                first_view.y,
+                first_view.width,
+                first_view.height,
+            ),
+            (0, 0, 768, 432)
+        );
+
+        let second_view = layout.views.get(1).unwrap();
+        assert_eq!(
+            (
+                second_view.x,
+                second_view.y,
+                second_view.width,
+                second_view.height,
+            ),
+            (0, 432, 768, 648)
+        );
+
+        let third_view = layout.views.get(2).unwrap();
+        assert_eq!(
+            (
+                third_view.x,
+                third_view.y,
+                third_view.width,
+                third_view.height,
+            ),
+            (768, 0, 460, 1080)
+        );
+
+        let fourth_view = layout.views.get(3).unwrap();
+        assert_eq!(
+            (
+                fourth_view.x,
+                fourth_view.y,
+                fourth_view.width,
+                fourth_view.height,
+            ),
+            (1228, 0, 692, 1080)
+        );
+    }
+
+    #[test]
     fn test_send_user_cmds() {
         let mut bsp = BSPLayout::new();
         bsp.user_cmd("inner-gap 0".to_string(), None, "eDP-1")
@@ -710,6 +764,21 @@ mod tests {
         bsp.user_cmd("og-bottom 1".to_string(), None, "eDP-1")
             .unwrap();
         assert_eq!(bsp.og_bottom, 1);
+
+        bsp.user_cmd("split-ratio 0.8".to_string(), None, "eDP-1")
+            .unwrap();
+        assert_eq!((bsp.v_split_ratio * 10.0).round(), 8.0);
+        assert_eq!((bsp.h_split_ratio * 10.0).round(), 8.0);
+
+        bsp.user_cmd("h-split-ratio 0.4".to_string(), None, "eDP-1")
+            .unwrap();
+        assert_eq!((bsp.v_split_ratio * 10.0).round(), 8.0);
+        assert_eq!((bsp.h_split_ratio * 10.0).round(), 4.0);
+
+        bsp.user_cmd("v-split-ratio 0.4".to_string(), None, "eDP-1")
+            .unwrap();
+        assert_eq!((bsp.v_split_ratio * 10.0).round(), 4.0);
+        assert_eq!((bsp.h_split_ratio * 10.0).round(), 4.0);
 
         let res = bsp.user_cmd("foo-bar 5678".to_string(), None, "eDP-1");
         assert!(res.is_err());
