@@ -58,7 +58,7 @@ struct Cli {
 
     /// The default percentage of available area that the primary window should occupy after any
     /// split takes place.
-    #[arg(long = "split-ratio", short, default_value_t = 0.5)]
+    #[arg(long = "split-ratio", short = 's', default_value_t = 0.5)]
     default_split_ratio: f32,
 
     /// The percentage of available area that the primary window should occupy after a horizontal
