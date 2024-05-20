@@ -245,6 +245,38 @@ fn parse_gap_cmd(cmd_str: &str) -> Result<u32, BSPLayoutError> {
     })
 }
 
+/// Convenience function for parsing the layout command string and extracting the f32 argument
+///
+/// # Arguments
+///
+/// * `cmd_str` - The string passed to the user_cmd function that is to be parsed
+///
+/// # Returns
+///
+/// If the command is well formed, return the contained ratio argument
+///
+/// # Errors
+///
+/// If the split command passed in does not contain a float argument, returns a `BSPLayoutError`
+fn parse_split_cmd(cmd_str: &str) -> Result<f32, BSPLayoutError> {
+    let new_gap_str = match cmd_str.split(" ").last() {
+        Some(s) => s,
+        None => {
+            return Err(BSPLayoutError::CmdError(
+                "Split command missing argument".to_string(),
+            ));
+        }
+    };
+    Ok(match new_gap_str.parse::<f32>() {
+        Ok(i) => i,
+        Err(_) => {
+            return Err(BSPLayoutError::CmdError(
+                "Could not parse f32 from ratio argument".to_string(),
+            ));
+        }
+    })
+}
+
 impl Layout for BSPLayout {
     type Error = BSPLayoutError;
 
@@ -279,45 +311,60 @@ impl Layout for BSPLayout {
     /// or if an invalid argument is passed to a valid command.
     fn user_cmd(
         &mut self,
-        _cmd: String,
+        cmd: String,
         _tags: Option<u32>,
         _output: &str,
     ) -> Result<(), Self::Error> {
+        // Outer gap command regex
         let og_re = Regex::new(r"^outer-gap \d+$").unwrap();
         let ogl_re = Regex::new(r"^og-left \d+$").unwrap();
         let ogr_re = Regex::new(r"^og-right \d+$").unwrap();
         let ogb_re = Regex::new(r"^og-bottom \d+$").unwrap();
         let ogt_re = Regex::new(r"^og-top \d+$").unwrap();
+
+        // Inner gap commnad regex
         let inner_re = Regex::new(r"^inner-gap \d+$").unwrap();
         let igl_re = Regex::new(r"^ig-left \d+$").unwrap();
         let igr_re = Regex::new(r"^ig-right \d+$").unwrap();
         let igb_re = Regex::new(r"^ig-bottom \d+$").unwrap();
         let igt_re = Regex::new(r"^ig-top \d+$").unwrap();
 
-        if og_re.is_match(&_cmd) {
-            self.set_all_outer_gaps(parse_gap_cmd(&_cmd)?);
-        } else if ogl_re.is_match(&_cmd) {
-            self.og_left = parse_gap_cmd(&_cmd)?;
-        } else if ogr_re.is_match(&_cmd) {
-            self.og_right = parse_gap_cmd(&_cmd)?;
-        } else if ogb_re.is_match(&_cmd) {
-            self.og_bottom = parse_gap_cmd(&_cmd)?;
-        } else if ogt_re.is_match(&_cmd) {
-            self.og_top = parse_gap_cmd(&_cmd)?;
-        } else if inner_re.is_match(&_cmd) {
-            self.set_all_inner_gaps(parse_gap_cmd(&_cmd)?);
-        } else if igl_re.is_match(&_cmd) {
-            self.ig_left = parse_gap_cmd(&_cmd)?;
-        } else if igr_re.is_match(&_cmd) {
-            self.ig_right = parse_gap_cmd(&_cmd)?;
-        } else if igb_re.is_match(&_cmd) {
-            self.ig_bottom = parse_gap_cmd(&_cmd)?;
-        } else if igt_re.is_match(&_cmd) {
-            self.ig_top = parse_gap_cmd(&_cmd)?;
+        // Split ratio command regex
+        let default_split_re = Regex::new(r"^split-ratio 0*\.\d+$").unwrap();
+        let vsr_re = Regex::new(r"^v-split-ratio 0*\.\d+$").unwrap();
+        let hsr_re = Regex::new(r"^h-split-ratio 0*\.\d+$").unwrap();
+
+        if og_re.is_match(&cmd) {
+            self.set_all_outer_gaps(parse_gap_cmd(&cmd)?);
+        } else if ogl_re.is_match(&cmd) {
+            self.og_left = parse_gap_cmd(&cmd)?;
+        } else if ogr_re.is_match(&cmd) {
+            self.og_right = parse_gap_cmd(&cmd)?;
+        } else if ogb_re.is_match(&cmd) {
+            self.og_bottom = parse_gap_cmd(&cmd)?;
+        } else if ogt_re.is_match(&cmd) {
+            self.og_top = parse_gap_cmd(&cmd)?;
+        } else if inner_re.is_match(&cmd) {
+            self.set_all_inner_gaps(parse_gap_cmd(&cmd)?);
+        } else if igl_re.is_match(&cmd) {
+            self.ig_left = parse_gap_cmd(&cmd)?;
+        } else if igr_re.is_match(&cmd) {
+            self.ig_right = parse_gap_cmd(&cmd)?;
+        } else if igb_re.is_match(&cmd) {
+            self.ig_bottom = parse_gap_cmd(&cmd)?;
+        } else if igt_re.is_match(&cmd) {
+            self.ig_top = parse_gap_cmd(&cmd)?;
+        } else if default_split_re.is_match(&cmd) {
+            self.v_split_ratio = parse_split_cmd(&cmd)?;
+            self.h_split_ratio = parse_split_cmd(&cmd)?;
+        } else if vsr_re.is_match(&cmd) {
+            self.v_split_ratio = parse_split_cmd(&cmd)?;
+        } else if hsr_re.is_match(&cmd) {
+            self.h_split_ratio = parse_split_cmd(&cmd)?;
         } else {
             return Err(BSPLayoutError::CmdError(format!(
                 "Command not recognized: {}",
-                _cmd
+                cmd
             )));
         }
         Ok(())
