@@ -58,18 +58,18 @@ struct Cli {
 
     /// The default percentage of available area that the primary window should occupy after any
     /// split takes place.
-    #[arg(long = "split-ratio", short = 's', default_value_t = 0.5)]
-    default_split_ratio: f32,
+    #[arg(long = "split-perc", short = 's', default_value_t = 0.5)]
+    default_split_perc: f32,
 
     /// The percentage of available area that the primary window should occupy after a horizontal
-    /// split. This will override the value of `default_split_ratio` only for horizontal splits.
+    /// split. This will override the value of `default_split_perc` only for horizontal splits.
     #[arg(long, short = 'H')]
-    h_split_ratio: Option<f32>,
+    h_split_perc: Option<f32>,
 
     /// The percentage of available area that the primary window should occupy after a vertical
-    /// split. This will override the value of `default_split_ratio` only for vertical splits.
+    /// split. This will override the value of `default_split_perc` only for vertical splits.
     #[arg(long, short)]
-    v_split_ratio: Option<f32>,
+    v_split_perc: Option<f32>,
 }
 
 fn main() {
@@ -85,14 +85,14 @@ fn main() {
     layout.og_bottom = cli.og_bottom.unwrap_or(cli.default_outer_gap);
     layout.og_top = cli.og_top.unwrap_or(cli.default_outer_gap);
 
-    layout.h_split_ratio = cli.h_split_ratio.unwrap_or(cli.default_split_ratio);
-    layout.v_split_ratio = cli.v_split_ratio.unwrap_or(cli.default_split_ratio);
-    if layout.h_split_ratio < 0.0
-        || layout.h_split_ratio > 1.0
-        || layout.v_split_ratio < 0.0
-        || layout.v_split_ratio > 1.0
+    layout.h_split_perc = cli.h_split_perc.unwrap_or(cli.default_split_perc);
+    layout.v_split_perc = cli.v_split_perc.unwrap_or(cli.default_split_perc);
+    if layout.h_split_perc < 0.0
+        || layout.h_split_perc > 1.0
+        || layout.v_split_perc < 0.0
+        || layout.v_split_perc > 1.0
     {
-        println!("Split ratios must be between 0.0 and 1.0");
+        println!("Split percs must be between 0.0 and 1.0");
         return;
     }
 

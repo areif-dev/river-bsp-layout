@@ -49,16 +49,16 @@ pub struct BSPLayout {
 
     /// The percentage (between 0.0 and 1.0) of space that should be occupied by the primary window
     /// when a horizontal split takes place
-    pub h_split_ratio: f32,
+    pub h_split_perc: f32,
 
     /// The percentage (between 0.0 and 1.0) of space that should be occupied by the primary window
     /// when a vertical split takes place
-    pub v_split_ratio: f32,
+    pub v_split_perc: f32,
 }
 
 impl BSPLayout {
     /// Initialize a new instance of BSPLayout with inner gaps of 5 pixels and outer gaps of 10
-    /// pixels on each side, and a split ratio of 50%.
+    /// pixels on each side, and a split percent of 50%.
     ///
     /// # Returns
     ///
@@ -73,8 +73,8 @@ impl BSPLayout {
             og_right: 10,
             og_top: 10,
             og_bottom: 10,
-            h_split_ratio: 0.5,
-            v_split_ratio: 0.5,
+            h_split_perc: 0.5,
+            v_split_perc: 0.5,
         }
     }
 
@@ -173,7 +173,7 @@ impl BSPLayout {
             /* Vertical Split */
 
             // In case the width of the area is odd, add one extra pixel if needed
-            h1_width = (canvas_width as f32 * self.v_split_ratio) as u32 - self.ig_right;
+            h1_width = (canvas_width as f32 * self.v_split_perc) as u32 - self.ig_right;
             h1_height = canvas_height;
 
             h2_width = canvas_width - h1_width - self.ig_left - self.ig_right;
@@ -184,7 +184,7 @@ impl BSPLayout {
             /* Horizontal Split */
 
             h1_width = canvas_width;
-            h1_height = (canvas_height as f32 * self.h_split_ratio) as u32 - self.ig_bottom;
+            h1_height = (canvas_height as f32 * self.h_split_perc) as u32 - self.ig_bottom;
 
             h2_width = canvas_width;
 
@@ -329,10 +329,10 @@ impl Layout for BSPLayout {
         let igb_re = Regex::new(r"^ig-bottom \d+$").unwrap();
         let igt_re = Regex::new(r"^ig-top \d+$").unwrap();
 
-        // Split ratio command regex
-        let default_split_re = Regex::new(r"^split-ratio 0*\.\d+$").unwrap();
-        let vsr_re = Regex::new(r"^v-split-ratio 0*\.\d+$").unwrap();
-        let hsr_re = Regex::new(r"^h-split-ratio 0*\.\d+$").unwrap();
+        // Split perc command regex
+        let default_split_re = Regex::new(r"^split-perc 0*\.\d+$").unwrap();
+        let vsr_re = Regex::new(r"^v-split-perc 0*\.\d+$").unwrap();
+        let hsr_re = Regex::new(r"^h-split-perc 0*\.\d+$").unwrap();
 
         if og_re.is_match(&cmd) {
             self.set_all_outer_gaps(parse_gap_cmd(&cmd)?);
@@ -355,12 +355,12 @@ impl Layout for BSPLayout {
         } else if igt_re.is_match(&cmd) {
             self.ig_top = parse_gap_cmd(&cmd)?;
         } else if default_split_re.is_match(&cmd) {
-            self.v_split_ratio = parse_split_cmd(&cmd)?;
-            self.h_split_ratio = parse_split_cmd(&cmd)?;
+            self.v_split_perc = parse_split_cmd(&cmd)?;
+            self.h_split_perc = parse_split_cmd(&cmd)?;
         } else if vsr_re.is_match(&cmd) {
-            self.v_split_ratio = parse_split_cmd(&cmd)?;
+            self.v_split_perc = parse_split_cmd(&cmd)?;
         } else if hsr_re.is_match(&cmd) {
-            self.h_split_ratio = parse_split_cmd(&cmd)?;
+            self.h_split_perc = parse_split_cmd(&cmd)?;
         } else {
             return Err(BSPLayoutError::CmdError(format!(
                 "Command not recognized: {}",
@@ -667,8 +667,8 @@ mod tests {
     #[test]
     fn test_generate_layout_split() {
         let mut bsp = BSPLayout::new();
-        bsp.v_split_ratio = 0.4;
-        bsp.h_split_ratio = 0.4;
+        bsp.v_split_perc = 0.4;
+        bsp.h_split_perc = 0.4;
         bsp.set_all_outer_gaps(0);
         bsp.set_all_inner_gaps(0);
         let layout = bsp.generate_layout(4, 1920, 1080, 1, "eDP-1").unwrap();
@@ -765,20 +765,20 @@ mod tests {
             .unwrap();
         assert_eq!(bsp.og_bottom, 1);
 
-        bsp.user_cmd("split-ratio 0.8".to_string(), None, "eDP-1")
+        bsp.user_cmd("split-perc 0.8".to_string(), None, "eDP-1")
             .unwrap();
-        assert_eq!((bsp.v_split_ratio * 10.0).round(), 8.0);
-        assert_eq!((bsp.h_split_ratio * 10.0).round(), 8.0);
+        assert_eq!((bsp.v_split_perc * 10.0).round(), 8.0);
+        assert_eq!((bsp.h_split_perc * 10.0).round(), 8.0);
 
-        bsp.user_cmd("h-split-ratio 0.4".to_string(), None, "eDP-1")
+        bsp.user_cmd("h-split-perc 0.4".to_string(), None, "eDP-1")
             .unwrap();
-        assert_eq!((bsp.v_split_ratio * 10.0).round(), 8.0);
-        assert_eq!((bsp.h_split_ratio * 10.0).round(), 4.0);
+        assert_eq!((bsp.v_split_perc * 10.0).round(), 8.0);
+        assert_eq!((bsp.h_split_perc * 10.0).round(), 4.0);
 
-        bsp.user_cmd("v-split-ratio 0.4".to_string(), None, "eDP-1")
+        bsp.user_cmd("v-split-perc 0.4".to_string(), None, "eDP-1")
             .unwrap();
-        assert_eq!((bsp.v_split_ratio * 10.0).round(), 4.0);
-        assert_eq!((bsp.h_split_ratio * 10.0).round(), 4.0);
+        assert_eq!((bsp.v_split_perc * 10.0).round(), 4.0);
+        assert_eq!((bsp.h_split_perc * 10.0).round(), 4.0);
 
         let res = bsp.user_cmd("foo-bar 5678".to_string(), None, "eDP-1");
         assert!(res.is_err());
