@@ -436,8 +436,10 @@ mod tests {
 
     #[test]
     fn test_handle_layout_helper_one_container() {
-        let bsp = BSPLayout::new();
-        let layout = bsp.handle_layout_helper(0, 0, 1920, 1080, 1);
+        let mut bsp = BSPLayout::new();
+        bsp.set_all_outer_gaps(0);
+        bsp.set_all_inner_gaps(0);
+        let layout = bsp.generate_layout(1, 1920, 1080, 1, "").unwrap();
 
         assert_eq!(layout.views.len(), 1);
         let first_view = layout.views.get(0).unwrap();
@@ -457,7 +459,7 @@ mod tests {
         let mut bsp = BSPLayout::new();
         bsp.set_all_outer_gaps(0);
         bsp.set_all_inner_gaps(0);
-        let layout = bsp.handle_layout_helper(0, 0, 1920, 1080, 2);
+        let layout = bsp.generate_layout(2, 1920, 1080, 1, "").unwrap();
 
         assert_eq!(layout.views.len(), 2);
         let first_view = layout.views.get(0).unwrap();
@@ -488,7 +490,7 @@ mod tests {
         let mut bsp = BSPLayout::new();
         bsp.set_all_outer_gaps(0);
         bsp.set_all_inner_gaps(0);
-        let layout = bsp.handle_layout_helper(0, 0, 1920, 1080, 3);
+        let layout = bsp.generate_layout(3, 1920, 1080, 1, "").unwrap();
 
         assert_eq!(layout.views.len(), 3);
         let first_view = layout.views.get(0).unwrap();
@@ -530,7 +532,7 @@ mod tests {
         let mut bsp = BSPLayout::new();
         bsp.set_all_outer_gaps(0);
         bsp.set_all_inner_gaps(0);
-        let layout = bsp.handle_layout_helper(0, 0, 1920, 1080, 4);
+        let layout = bsp.generate_layout(4, 1920, 1080, 1, "").unwrap();
 
         assert_eq!(layout.views.len(), 4);
         let first_view = layout.views.get(0).unwrap();
@@ -688,6 +690,9 @@ mod tests {
     #[test]
     fn test_generate_layout_split() {
         let mut bsp = BSPLayout::new();
+        bsp.v_split_perc = 0.0;
+        assert!(bsp.generate_layout(4, 1920, 1080, 1, "eDP-1").is_err());
+
         bsp.v_split_perc = 0.4;
         bsp.h_split_perc = 0.4;
         bsp.set_all_outer_gaps(0);
