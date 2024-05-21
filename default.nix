@@ -1,7 +1,7 @@
 { fetchFromGitHub, rustPlatform, lib }:
 rustPlatform.buildRustPackage {
   pname = "river-bsp-layout";
-  version = "2.0.0";
+  version = "2.1.0";
 
   src = fetchFromGitHub {
     owner = "areif-dev";
