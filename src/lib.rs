@@ -8,6 +8,9 @@ use std::fmt::Display;
 pub enum BSPLayoutError {
     /// Encountered when a failure occurs in `user_cmd`
     CmdError(String),
+
+    /// Encountered when there a failure occurs when generating a layout
+    LayoutError(String),
 }
 
 impl Display for BSPLayoutError {
