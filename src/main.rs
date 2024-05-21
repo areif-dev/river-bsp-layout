@@ -87,12 +87,12 @@ fn main() {
 
     layout.h_split_perc = cli.h_split_perc.unwrap_or(cli.default_split_perc);
     layout.v_split_perc = cli.v_split_perc.unwrap_or(cli.default_split_perc);
-    if layout.h_split_perc < 0.0
-        || layout.h_split_perc > 1.0
-        || layout.v_split_perc < 0.0
-        || layout.v_split_perc > 1.0
+    if layout.h_split_perc <= 0.0
+        || layout.h_split_perc >= 1.0
+        || layout.v_split_perc <= 0.0
+        || layout.v_split_perc >= 1.0
     {
-        println!("Split percs must be between 0.0 and 1.0");
+        println!("Split percentages must be greater than 0 and less than 1");
         return;
     }
 

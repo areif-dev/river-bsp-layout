@@ -271,10 +271,18 @@ fn parse_split_cmd(cmd_str: &str) -> Result<f32, BSPLayoutError> {
         }
     };
     Ok(match new_gap_str.parse::<f32>() {
-        Ok(i) => i,
+        Ok(i) => {
+            if i <= 0.0 || i >= 1.0 {
+                return Err(BSPLayoutError::CmdError(
+                    "Split percents must be greater than 0 and less than 1".to_string(),
+                ));
+            } else {
+                i
+            }
+        }
         Err(_) => {
             return Err(BSPLayoutError::CmdError(
-                "Could not parse f32 from ratio argument".to_string(),
+                "Could not parse f32 from percent argument".to_string(),
             ));
         }
     })
@@ -401,6 +409,16 @@ impl Layout for BSPLayout {
         _tags: u32,
         _output: &str,
     ) -> Result<GeneratedLayout, Self::Error> {
+        if self.v_split_perc <= 0.0
+            || self.v_split_perc >= 1.0
+            || self.h_split_perc <= 0.0
+            || self.h_split_perc >= 1.0
+        {
+            return Err(BSPLayoutError::LayoutError(
+                "Split percents must be greater than 0 and less than 1".to_string(),
+            ));
+        }
+
         let layout = self.handle_layout_helper(
             self.og_left as i32,
             self.og_top as i32,
@@ -782,6 +800,19 @@ mod tests {
             .unwrap();
         assert_eq!((bsp.v_split_perc * 10.0).round(), 4.0);
         assert_eq!((bsp.h_split_perc * 10.0).round(), 4.0);
+
+        assert!(bsp
+            .user_cmd("split-perc 0.0".to_string(), None, "eDP-1")
+            .is_err());
+        assert!(bsp
+            .user_cmd("split-perc 1.0".to_string(), None, "eDP-1")
+            .is_err());
+        assert!(bsp
+            .user_cmd("split-perc 1.1".to_string(), None, "eDP-1")
+            .is_err());
+        assert!(bsp
+            .user_cmd("split-perc -0.1".to_string(), None, "eDP-1")
+            .is_err());
 
         let res = bsp.user_cmd("foo-bar 5678".to_string(), None, "eDP-1");
         assert!(res.is_err());
