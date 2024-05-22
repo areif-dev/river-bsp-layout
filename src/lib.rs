@@ -142,7 +142,16 @@ impl BSPLayout {
         canvas_width: u32,
         canvas_height: u32,
         view_count: u32,
-    ) -> GeneratedLayout {
+    ) -> Result<GeneratedLayout, BSPLayoutError> {
+        if self.v_split_perc <= 0.0
+            || self.v_split_perc >= 1.0
+            || self.h_split_perc <= 0.0
+            || self.h_split_perc >= 1.0
+        {
+            return Err(BSPLayoutError::LayoutError(
+                "Split percents must be > 0.0 and less than 1.0".to_string(),
+            ));
+        }
         let mut layout = GeneratedLayout {
             layout_name: "bsp-layout".to_string(),
             views: Vec::with_capacity(view_count as usize),
@@ -158,7 +167,7 @@ impl BSPLayout {
                 height: canvas_height,
             });
 
-            return layout;
+            return Ok(layout);
         }
 
         let half_view_count = view_count / 2;
@@ -175,7 +184,6 @@ impl BSPLayout {
         if canvas_width >= canvas_height {
             /* Vertical Split */
 
-            // In case the width of the area is odd, add one extra pixel if needed
             h1_width = (canvas_width as f32 * self.v_split_perc) as u32 - self.ig_right;
             h1_height = canvas_height;
 
@@ -190,8 +198,6 @@ impl BSPLayout {
             h1_height = (canvas_height as f32 * self.h_split_perc) as u32 - self.ig_bottom;
 
             h2_width = canvas_width;
-
-            // In case the width of the area is odd, add one extra pixel if needed
             h2_height = canvas_height - h1_height - self.ig_top - self.ig_bottom;
             h2_x = origin_x;
             h2_y = h1_height as i32 + origin_y + (self.ig_bottom + self.ig_top) as i32;
@@ -199,7 +205,7 @@ impl BSPLayout {
 
         /* Recursively split the two halves of the window */
         let mut first_half =
-            self.handle_layout_helper(origin_x, origin_y, h1_width, h1_height, half_view_count);
+            self.handle_layout_helper(origin_x, origin_y, h1_width, h1_height, half_view_count)?;
 
         let mut sec_half = self.handle_layout_helper(
             h2_x,
@@ -207,12 +213,12 @@ impl BSPLayout {
             h2_width,
             h2_height,
             half_view_count + views_remaining,
-        );
+        )?;
 
         layout.views.append(&mut first_half.views);
         layout.views.append(&mut sec_half.views);
 
-        layout
+        Ok(layout)
     }
 }
 
@@ -409,24 +415,13 @@ impl Layout for BSPLayout {
         _tags: u32,
         _output: &str,
     ) -> Result<GeneratedLayout, Self::Error> {
-        if self.v_split_perc <= 0.0
-            || self.v_split_perc >= 1.0
-            || self.h_split_perc <= 0.0
-            || self.h_split_perc >= 1.0
-        {
-            return Err(BSPLayoutError::LayoutError(
-                "Split percents must be greater than 0 and less than 1".to_string(),
-            ));
-        }
-
-        let layout = self.handle_layout_helper(
+        Ok(self.handle_layout_helper(
             self.og_left as i32,
             self.og_top as i32,
             usable_width - self.og_left - self.og_right,
             usable_height - self.og_top - self.og_bottom,
             view_count,
-        );
-        Ok(layout)
+        ))?
     }
 }
 
