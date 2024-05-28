@@ -18,16 +18,24 @@
           };
         };
       };
+
       perSystem = { config, system, pkgs, ... }: {
         _module.args.pkgs = import nixpkgs {
           inherit system;
           overlays = [ (import inputs.rust-overlay) self.overlays.default ];
         };
+
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [ rust-bin.stable.latest.default ];
         };
-        packages.default = pkgs.river-bsp-layout;
 
+        packages.river-bsp-layout = pkgs.river-bsp-layout;
+        packages.default = config.packages.river-bsp-layout;
+
+        apps.river-bsp-layout.program = "${config.packages.river-bsp-layout}/bin/river-bsp-layout";
+        apps.default.program = config.apps.river-bsp-layout.program;
+
+        formatter = pkgs.nixpkgs-fmt;
       };
     };
 }
