@@ -370,6 +370,9 @@ impl Layout for BSPLayout {
         let vsr_re = Regex::new(r"^v-split-perc 0*\.\d+$").unwrap();
         let hsr_re = Regex::new(r"^h-split-perc 0*\.\d+$").unwrap();
 
+        // Reverse command regex
+        let rev_re = Regex::new(r"^reverse$").unwrap();
+
         if og_re.is_match(&cmd) {
             self.set_all_outer_gaps(parse_gap_cmd(&cmd)?);
         } else if ogl_re.is_match(&cmd) {
@@ -397,6 +400,8 @@ impl Layout for BSPLayout {
             self.v_split_perc = parse_split_cmd(&cmd)?;
         } else if hsr_re.is_match(&cmd) {
             self.h_split_perc = parse_split_cmd(&cmd)?;
+        } else if rev_re.is_match(&cmd) {
+            self.reversed = !self.reversed;
         } else {
             return Err(BSPLayoutError::CmdError(format!(
                 "Command not recognized: {}",
