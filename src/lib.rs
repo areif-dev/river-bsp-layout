@@ -57,6 +57,9 @@ pub struct BSPLayout {
     /// The percentage (between 0.0 and 1.0) of space that should be occupied by the primary window
     /// when a vertical split takes place
     pub v_split_perc: f32,
+
+    /// If `true`, new views will be prepended to the list. Otherwise, new views will be appended.
+    pub reversed: bool,
 }
 
 impl BSPLayout {
@@ -78,6 +81,7 @@ impl BSPLayout {
             og_bottom: 10,
             h_split_perc: 0.5,
             v_split_perc: 0.5,
+            reversed: false,
         }
     }
 
@@ -215,8 +219,13 @@ impl BSPLayout {
             half_view_count + views_remaining,
         )?;
 
-        layout.views.append(&mut first_half.views);
-        layout.views.append(&mut sec_half.views);
+        if self.reversed {
+            layout.views.append(&mut sec_half.views);
+            layout.views.append(&mut first_half.views);
+        } else {
+            layout.views.append(&mut first_half.views);
+            layout.views.append(&mut sec_half.views);
+        }
 
         Ok(layout)
     }

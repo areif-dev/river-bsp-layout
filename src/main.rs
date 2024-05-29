@@ -70,6 +70,10 @@ struct Cli {
     /// split. This will override the value of `default_split_perc` only for vertical splits.
     #[arg(long, short)]
     v_split_perc: Option<f32>,
+
+    /// Reverse the order of the views as well as the order they are added.
+    #[arg(long, default_value_t = false)]
+    reverse: bool,
 }
 
 fn main() {
@@ -95,6 +99,8 @@ fn main() {
         println!("Split percentages must be greater than 0 and less than 1");
         return;
     }
+
+    layout.reversed = cli.reverse;
 
     run(layout).unwrap();
 }
