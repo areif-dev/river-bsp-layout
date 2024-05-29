@@ -188,21 +188,31 @@ impl BSPLayout {
         if canvas_width >= canvas_height {
             /* Vertical Split */
 
-            h1_width = (canvas_width as f32 * self.v_split_perc) as u32 - self.ig_right;
+            if self.reversed {
+                h2_width = (canvas_width as f32 * self.v_split_perc) as u32 - self.ig_right;
+                h1_width = canvas_width - h2_width - self.ig_left - self.ig_right;
+            } else {
+                h1_width = (canvas_width as f32 * self.v_split_perc) as u32 - self.ig_right;
+                h2_width = canvas_width - h1_width - self.ig_left - self.ig_right;
+            }
             h1_height = canvas_height;
 
-            h2_width = canvas_width - h1_width - self.ig_left - self.ig_right;
             h2_height = canvas_height;
             h2_x = h1_width as i32 + origin_x + (self.ig_left + self.ig_right) as i32;
             h2_y = origin_y;
         } else {
             /* Horizontal Split */
 
+            if self.reversed {
+                h2_height = (canvas_height as f32 * self.h_split_perc) as u32 - self.ig_bottom;
+                h1_height = canvas_height - h2_height - self.ig_top - self.ig_bottom;
+            } else {
+                h1_height = (canvas_height as f32 * self.h_split_perc) as u32 - self.ig_bottom;
+                h2_height = canvas_height - h1_height - self.ig_top - self.ig_bottom;
+            }
             h1_width = canvas_width;
-            h1_height = (canvas_height as f32 * self.h_split_perc) as u32 - self.ig_bottom;
 
             h2_width = canvas_width;
-            h2_height = canvas_height - h1_height - self.ig_top - self.ig_bottom;
             h2_x = origin_x;
             h2_y = h1_height as i32 + origin_y + (self.ig_bottom + self.ig_top) as i32;
         }
