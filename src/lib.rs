@@ -57,6 +57,9 @@ pub struct BSPLayout {
     /// The percentage (between 0.0 and 1.0) of space that should be occupied by the primary window
     /// when a vertical split takes place
     pub v_split_perc: f32,
+
+    /// If `true`, new views will be prepended to the list. Otherwise, new views will be appended.
+    pub reversed: bool,
 }
 
 impl BSPLayout {
@@ -78,6 +81,7 @@ impl BSPLayout {
             og_bottom: 10,
             h_split_perc: 0.5,
             v_split_perc: 0.5,
+            reversed: false,
         }
     }
 
@@ -184,21 +188,31 @@ impl BSPLayout {
         if canvas_width >= canvas_height {
             /* Vertical Split */
 
-            h1_width = (canvas_width as f32 * self.v_split_perc) as u32 - self.ig_right;
+            if self.reversed {
+                h2_width = (canvas_width as f32 * self.v_split_perc) as u32 - self.ig_right;
+                h1_width = canvas_width - h2_width - self.ig_left - self.ig_right;
+            } else {
+                h1_width = (canvas_width as f32 * self.v_split_perc) as u32 - self.ig_right;
+                h2_width = canvas_width - h1_width - self.ig_left - self.ig_right;
+            }
             h1_height = canvas_height;
 
-            h2_width = canvas_width - h1_width - self.ig_left - self.ig_right;
             h2_height = canvas_height;
             h2_x = h1_width as i32 + origin_x + (self.ig_left + self.ig_right) as i32;
             h2_y = origin_y;
         } else {
             /* Horizontal Split */
 
+            if self.reversed {
+                h2_height = (canvas_height as f32 * self.h_split_perc) as u32 - self.ig_bottom;
+                h1_height = canvas_height - h2_height - self.ig_top - self.ig_bottom;
+            } else {
+                h1_height = (canvas_height as f32 * self.h_split_perc) as u32 - self.ig_bottom;
+                h2_height = canvas_height - h1_height - self.ig_top - self.ig_bottom;
+            }
             h1_width = canvas_width;
-            h1_height = (canvas_height as f32 * self.h_split_perc) as u32 - self.ig_bottom;
 
             h2_width = canvas_width;
-            h2_height = canvas_height - h1_height - self.ig_top - self.ig_bottom;
             h2_x = origin_x;
             h2_y = h1_height as i32 + origin_y + (self.ig_bottom + self.ig_top) as i32;
         }
@@ -215,8 +229,13 @@ impl BSPLayout {
             half_view_count + views_remaining,
         )?;
 
-        layout.views.append(&mut first_half.views);
-        layout.views.append(&mut sec_half.views);
+        if self.reversed {
+            layout.views.append(&mut sec_half.views);
+            layout.views.append(&mut first_half.views);
+        } else {
+            layout.views.append(&mut first_half.views);
+            layout.views.append(&mut sec_half.views);
+        }
 
         Ok(layout)
     }
@@ -351,6 +370,9 @@ impl Layout for BSPLayout {
         let vsr_re = Regex::new(r"^v-split-perc 0*\.\d+$").unwrap();
         let hsr_re = Regex::new(r"^h-split-perc 0*\.\d+$").unwrap();
 
+        // Reverse command regex
+        let rev_re = Regex::new(r"^reverse$").unwrap();
+
         if og_re.is_match(&cmd) {
             self.set_all_outer_gaps(parse_gap_cmd(&cmd)?);
         } else if ogl_re.is_match(&cmd) {
@@ -378,6 +400,8 @@ impl Layout for BSPLayout {
             self.v_split_perc = parse_split_cmd(&cmd)?;
         } else if hsr_re.is_match(&cmd) {
             self.h_split_perc = parse_split_cmd(&cmd)?;
+        } else if rev_re.is_match(&cmd) {
+            self.reversed = !self.reversed;
         } else {
             return Err(BSPLayoutError::CmdError(format!(
                 "Command not recognized: {}",
