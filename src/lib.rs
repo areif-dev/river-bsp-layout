@@ -764,6 +764,49 @@ mod tests {
     }
 
     #[test]
+    fn test_generate_layout_reverse() {
+        let mut bsp = BSPLayout::new();
+        bsp.set_all_inner_gaps(0);
+        bsp.set_all_outer_gaps(0);
+        bsp.reversed = true;
+        let layout = bsp.generate_layout(3, 1920, 1080, 1, "eDP-1").unwrap();
+
+        assert_eq!(layout.views.len(), 3);
+        let first_view = layout.views.get(0).unwrap();
+        assert_eq!(
+            (
+                first_view.x,
+                first_view.y,
+                first_view.width,
+                first_view.height
+            ),
+            (960, 540, 960, 540)
+        );
+
+        let second_view = layout.views.get(1).unwrap();
+        assert_eq!(
+            (
+                second_view.x,
+                second_view.y,
+                second_view.width,
+                second_view.height
+            ),
+            (960, 0, 960, 540)
+        );
+
+        let third_view = layout.views.get(2).unwrap();
+        assert_eq!(
+            (
+                third_view.x,
+                third_view.y,
+                third_view.width,
+                third_view.height
+            ),
+            (0, 0, 960, 1080)
+        );
+    }
+
+    #[test]
     fn test_send_user_cmds() {
         let mut bsp = BSPLayout::new();
         bsp.user_cmd("inner-gap 0".to_string(), None, "eDP-1")
@@ -837,6 +880,12 @@ mod tests {
         assert!(bsp
             .user_cmd("split-perc -0.1".to_string(), None, "eDP-1")
             .is_err());
+
+        bsp.reversed = false;
+        bsp.user_cmd("reverse".to_string(), None, "eDP-1").unwrap();
+        assert!(bsp.reversed);
+        bsp.user_cmd("reverse".to_string(), None, "eDP-1").unwrap();
+        assert!(!bsp.reversed);
 
         let res = bsp.user_cmd("foo-bar 5678".to_string(), None, "eDP-1");
         assert!(res.is_err());
