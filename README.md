@@ -89,43 +89,44 @@ river-bsp-layout --inner-gap 5 --outer-gap 10 --split-perc 0.5 &
 
 ## CLI Help
 
-```bash
-Binary space partitioned layout for the tiling Wayland compositor River.
+### Binary space partitioned layout for the tiling Wayland compositor River.
 
-Usage: river-bsp-layout [OPTIONS]
+### Usage: river-bsp-layout [OPTIONS]
 
-Options:
-  -i, --inner-gap <DEFAULT_INNER_GAP>
+### Options:
+
+* -i, --inner-gap <DEFAULT_INNER_GAP>
           The number of pixels to pad each inner edge of a window by default [default: 0]
-  -l, --ig-left <IG_LEFT>
+* -l, --ig-left <IG_LEFT>
           The number of pixels to pad the left inner edge of each window. This Overrides `default_inner_gap`. Optional
-  -r, --ig-right <IG_RIGHT>
+* -r, --ig-right <IG_RIGHT>
           The number of pixels to pad the right inner edge of each window. This Overrides `default_inner_gap`. Optional
-  -b, --ig-bottom <IG_BOTTOM>
+* -b, --ig-bottom <IG_BOTTOM>
           The number of pixels to pad the bottom inner edge of each window. This Overrides `default_inner_gap`. Optional
-  -t, --ig-top <IG_TOP>
+* -t, --ig-top <IG_TOP>
           The number of pixels to pad the top inner edge of each window. This Overrides `default_inner_gap`. Optional
-  -o, --outer-gap <DEFAULT_OUTER_GAP>
+* -o, --outer-gap <DEFAULT_OUTER_GAP>
           The default size of the gap between windows and the edge of the screen [default: 0]
-  -L, --og-left <OG_LEFT>
+* -L, --og-left <OG_LEFT>
           The number of pixels to place between the left screen edge and any windows. Overrides `default_outer_gap` for the left side. Optional
-  -R, --og-right <OG_RIGHT>
+* -R, --og-right <OG_RIGHT>
           The number of pixels to place between the right screen edge and any windows. Overrides `default_outer_gap` for the right side. Optional
-  -B, --og-bottom <OG_BOTTOM>
+* -B, --og-bottom <OG_BOTTOM>
           The number of pixels to place between the bottom screen edge and any windows. Overrides `default_outer_gap` for the bottom side. Optional
-  -T, --og-top <OG_TOP>
+* -T, --og-top <OG_TOP>
           The number of pixels to place between the top screen edge and any windows. Overrides `default_outer_gap` for the top side. Optional
-  -s, --split-perc <DEFAULT_SPLIT_PERC>
+* -s, --split-perc <DEFAULT_SPLIT_PERC>
           The default percentage of available area that the primary window should occupy after any split takes place [default: 0.5]
-  -H, --h-split-perc <H_SPLIT_PERC>
+* -H, --h-split-perc <H_SPLIT_PERC>
           The percentage of available area that the primary window should occupy after a horizontal split. This will override the value of `default_split_perc` only for horizontal splits
-  -v, --v-split-perc <V_SPLIT_PERC>
+* -v, --v-split-perc <V_SPLIT_PERC>
           The percentage of available area that the primary window should occupy after a vertical split. This will override the value of `default_split_perc` only for vertical splits
-  -h, --help
+* --reverse
+          Reverse the order of the views as well as the order they are added
+* -h, --help
           Print help
-  -V, --version
+* -V, --version
           Print version
-```
 
 ## CLI Examples
 
@@ -223,5 +224,12 @@ riverctl send-layout-cmd v-split-perc 0.6
 * Set only horizontal split percentage to 0.6
 ```bash 
 riverctl send-layout-cmd h-split-perc 0.6
+```
+
+### Reverse Command 
+
+* Reverse the order that new views are added to the stack 
+```bash 
+riverctl send-layout-cmd reverse 
 ```
 
