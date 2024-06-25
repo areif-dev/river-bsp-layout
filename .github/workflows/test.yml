@@ -1,0 +1,37 @@
+--- 
+
+name: Unit Tests 
+
+permissions:
+  contents: read
+
+on: 
+  push:
+    branches: 
+      - main
+    paths: 
+      - 'src/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+
+  pull_request:
+    branches: 
+      - main
+    paths: 
+      - 'src/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+
+  workflow_dispatch:
+
+jobs: 
+  test:
+    env: 
+      CARGO_TERM_COLOR: always
+
+    steps: 
+      - name: Checkout 
+        uses: actions/checkout@v4 
+
+      - name: Run Unit Tests 
+        run: cargo test --verbose 
