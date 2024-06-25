@@ -52,11 +52,11 @@ pub struct BSPLayout {
 
     /// The percentage (between 0.0 and 1.0) of space that should be occupied by the primary window
     /// when a horizontal split takes place
-    pub h_split_perc: f32,
+    pub hsplit_perc: f32,
 
     /// The percentage (between 0.0 and 1.0) of space that should be occupied by the primary window
     /// when a vertical split takes place
-    pub v_split_perc: f32,
+    pub vsplit_perc: f32,
 
     /// If `true`, new views will be prepended to the list. Otherwise, new views will be appended.
     pub reversed: bool,
@@ -79,8 +79,8 @@ impl BSPLayout {
             og_right: 10,
             og_top: 10,
             og_bottom: 10,
-            h_split_perc: 0.5,
-            v_split_perc: 0.5,
+            hsplit_perc: 0.5,
+            vsplit_perc: 0.5,
             reversed: false,
         }
     }
@@ -147,10 +147,10 @@ impl BSPLayout {
         canvas_height: u32,
         view_count: u32,
     ) -> Result<GeneratedLayout, BSPLayoutError> {
-        if self.v_split_perc <= 0.0
-            || self.v_split_perc >= 1.0
-            || self.h_split_perc <= 0.0
-            || self.h_split_perc >= 1.0
+        if self.vsplit_perc <= 0.0
+            || self.vsplit_perc >= 1.0
+            || self.hsplit_perc <= 0.0
+            || self.hsplit_perc >= 1.0
         {
             return Err(BSPLayoutError::LayoutError(
                 "Split percents must be > 0.0 and less than 1.0".to_string(),
@@ -189,10 +189,10 @@ impl BSPLayout {
             /* Vertical Split */
 
             if self.reversed {
-                h2_width = (canvas_width as f32 * self.v_split_perc) as u32 - self.ig_right;
+                h2_width = (canvas_width as f32 * self.vsplit_perc) as u32 - self.ig_right;
                 h1_width = canvas_width - h2_width - self.ig_left - self.ig_right;
             } else {
-                h1_width = (canvas_width as f32 * self.v_split_perc) as u32 - self.ig_right;
+                h1_width = (canvas_width as f32 * self.vsplit_perc) as u32 - self.ig_right;
                 h2_width = canvas_width - h1_width - self.ig_left - self.ig_right;
             }
             h1_height = canvas_height;
@@ -204,10 +204,10 @@ impl BSPLayout {
             /* Horizontal Split */
 
             if self.reversed {
-                h2_height = (canvas_height as f32 * self.h_split_perc) as u32 - self.ig_bottom;
+                h2_height = (canvas_height as f32 * self.hsplit_perc) as u32 - self.ig_bottom;
                 h1_height = canvas_height - h2_height - self.ig_top - self.ig_bottom;
             } else {
-                h1_height = (canvas_height as f32 * self.h_split_perc) as u32 - self.ig_bottom;
+                h1_height = (canvas_height as f32 * self.hsplit_perc) as u32 - self.ig_bottom;
                 h2_height = canvas_height - h1_height - self.ig_top - self.ig_bottom;
             }
             h1_width = canvas_width;
@@ -709,11 +709,11 @@ mod tests {
     #[test]
     fn test_generate_layout_split() {
         let mut bsp = BSPLayout::new();
-        bsp.v_split_perc = 0.0;
+        bsp.vsplit_perc = 0.0;
         assert!(bsp.generate_layout(4, 1920, 1080, 1, "eDP-1").is_err());
 
-        bsp.v_split_perc = 0.4;
-        bsp.h_split_perc = 0.4;
+        bsp.vsplit_perc = 0.4;
+        bsp.hsplit_perc = 0.4;
         bsp.set_all_outer_gaps(0);
         bsp.set_all_inner_gaps(0);
         let layout = bsp.generate_layout(4, 1920, 1080, 1, "eDP-1").unwrap();
@@ -855,18 +855,18 @@ mod tests {
 
         bsp.user_cmd("split-perc 0.8".to_string(), None, "eDP-1")
             .unwrap();
-        assert_eq!((bsp.v_split_perc * 10.0).round(), 8.0);
-        assert_eq!((bsp.h_split_perc * 10.0).round(), 8.0);
+        assert_eq!((bsp.vsplit_perc * 10.0).round(), 8.0);
+        assert_eq!((bsp.hsplit_perc * 10.0).round(), 8.0);
 
-        bsp.user_cmd("h-split-perc 0.4".to_string(), None, "eDP-1")
+        bsp.user_cmd("hsplit-perc 0.4".to_string(), None, "eDP-1")
             .unwrap();
-        assert_eq!((bsp.v_split_perc * 10.0).round(), 8.0);
-        assert_eq!((bsp.h_split_perc * 10.0).round(), 4.0);
+        assert_eq!((bsp.vsplit_perc * 10.0).round(), 8.0);
+        assert_eq!((bsp.hsplit_perc * 10.0).round(), 4.0);
 
-        bsp.user_cmd("v-split-perc 0.4".to_string(), None, "eDP-1")
+        bsp.user_cmd("vsplit-perc 0.4".to_string(), None, "eDP-1")
             .unwrap();
-        assert_eq!((bsp.v_split_perc * 10.0).round(), 4.0);
-        assert_eq!((bsp.h_split_perc * 10.0).round(), 4.0);
+        assert_eq!((bsp.vsplit_perc * 10.0).round(), 4.0);
+        assert_eq!((bsp.hsplit_perc * 10.0).round(), 4.0);
 
         assert!(bsp
             .user_cmd("split-perc 0.0".to_string(), None, "eDP-1")

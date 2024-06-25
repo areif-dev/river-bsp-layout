@@ -117,9 +117,9 @@ river-bsp-layout --inner-gap 5 --outer-gap 10 --split-perc 0.5 &
           The number of pixels to place between the top screen edge and any windows. Overrides `default_outer_gap` for the top side. Optional
 * -s, --split-perc <DEFAULT_SPLIT_PERC>
           The default percentage of available area that the primary window should occupy after any split takes place [default: 0.5]
-* -H, --h-split-perc <H_SPLIT_PERC>
+* -H, --hsplit-perc <H_SPLIT_PERC>
           The percentage of available area that the primary window should occupy after a horizontal split. This will override the value of `default_split_perc` only for horizontal splits
-* -v, --v-split-perc <V_SPLIT_PERC>
+* -v, --vsplit-perc <V_SPLIT_PERC>
           The percentage of available area that the primary window should occupy after a vertical split. This will override the value of `default_split_perc` only for vertical splits
 * --reverse
           Reverse the order of the views as well as the order they are added
@@ -156,7 +156,7 @@ This config is mostly to demonstrate the possibilities of individually configura
 river-bsp-layout --ig-top 1 --og-bottom 5 --ig-right 10 --og-left 15 --og-top 20 --ig-bottom 25 --og-right 30 --ig-left 35
 ```
 
-![river-bsp-layout with 0.61 h-split-perc](./screenshots/ratio.png "0.61 Split")
+![river-bsp-layout with 0.61 hsplit-perc](./screenshots/ratio.png "0.61 Split")
 
 This run demonstrates the ability to split the screen into unequal chunks whenever a split takes place. This allows for greater focus to be put on your primary window(s)
 

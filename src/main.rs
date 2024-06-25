@@ -64,12 +64,12 @@ struct Cli {
     /// The percentage of available area that the primary window should occupy after a horizontal
     /// split. This will override the value of `default_split_perc` only for horizontal splits.
     #[arg(long, short = 'H')]
-    h_split_perc: Option<f32>,
+    hsplit_perc: Option<f32>,
 
     /// The percentage of available area that the primary window should occupy after a vertical
     /// split. This will override the value of `default_split_perc` only for vertical splits.
     #[arg(long, short)]
-    v_split_perc: Option<f32>,
+    vsplit_perc: Option<f32>,
 
     /// Reverse the order of the views as well as the order they are added.
     #[arg(long, default_value_t = false)]
@@ -89,12 +89,12 @@ fn main() {
     layout.og_bottom = cli.og_bottom.unwrap_or(cli.default_outer_gap);
     layout.og_top = cli.og_top.unwrap_or(cli.default_outer_gap);
 
-    layout.h_split_perc = cli.h_split_perc.unwrap_or(cli.default_split_perc);
-    layout.v_split_perc = cli.v_split_perc.unwrap_or(cli.default_split_perc);
-    if layout.h_split_perc <= 0.0
-        || layout.h_split_perc >= 1.0
-        || layout.v_split_perc <= 0.0
-        || layout.v_split_perc >= 1.0
+    layout.hsplit_perc = cli.hsplit_perc.unwrap_or(cli.default_split_perc);
+    layout.vsplit_perc = cli.vsplit_perc.unwrap_or(cli.default_split_perc);
+    if layout.hsplit_perc <= 0.0
+        || layout.hsplit_perc >= 1.0
+        || layout.vsplit_perc <= 0.0
+        || layout.vsplit_perc >= 1.0
     {
         println!("Split percentages must be greater than 0 and less than 1");
         return;
