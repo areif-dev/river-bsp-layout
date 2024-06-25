@@ -1,0 +1,74 @@
+---
+
+name: "Test, Build, and Release"
+
+permissions:
+  contents: write
+
+on: 
+  push:
+    tags: 
+      - "v*"
+
+jobs:
+  test-build-release: 
+    strategy:
+      matrix:
+        arch:
+          - x86_64
+        target: 
+          - unknown-linux-gnu
+          - unknown-linux-musl
+          
+    env: 
+      CARGO_TERM_COLOR: always
+    runs-on: ubuntu-latest 
+
+    steps: 
+      - name: Checkout 
+        uses: actions/checkout@v4 
+
+      - name: Run Unit Tests 
+        run: cargo test --verbose 
+
+      - name: Setup Rust 
+        uses: actions-rs/toolchain@v1 
+        with: 
+          toolchain: stable 
+          target: ${{ matrix.arch }}-${{ matrix.target }}
+
+      - name: Compile Project
+        run: |
+          cargo build --release --target ${{ matrix.arch }}-${{ matrix.target }}
+
+      - name: Compress Files 
+        run: |
+          mv target/${{ matrix.arch }}-${{ matrix.target }}/release/river-bsp-layout ./river-bsp-layout-${{ matrix.arch }}-${{ matrix.target }}
+          tar -czf ./river-bsp-layout-${{ matrix.arch }}-${{ matrix.target }}.tar.gz ./river-bsp-layout-${{ matrix.arch }}-${{ matrix.target }} ./README.md ./LICENSE ./depends.md
+
+      - name: Install cargo-rpm 
+        run: cargo install cargo-rpm 
+
+      - name: Build RPM 
+        run: |
+          cargo rpm build 
+          mv ./target/release/rpmbuild/RPMS/${{ matrix.arch }}/*.rpm ./river-bsp-layout-${{ matrix.arch }}.rpm
+
+      - name: Install cargo-deb
+        run: cargo install cargo-deb
+
+      - name: Build DEB
+        run: |
+          cargo deb
+          mv ./target/debian/*.deb ./river-bsp-layout-x86_64.deb
+
+      - name: Tag Release 
+        uses: softprops/action-gh-release@v2
+        with: 
+          draft: false 
+          prerelease: false
+          make_latest: true
+          files: |
+            ./river-bsp-layout-${{ matrix.arch }}-${{ matrix.target }}.tar.gz
+            ./river-bsp-layout-${{ matrix.arch }}.rpm
+            ./river-bsp-layout-x86_64.deb
