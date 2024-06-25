@@ -172,64 +172,80 @@ river-bsp-layout --inner-gap 5 --outer-gap 10 --split-perc 0.61803
 
 * Sets all outer gaps to 5
 ```bash
-riverctl send-layout-cmd bsp-layout outer-gap 5
+riverctl send-layout-cmd bsp-layout "outer-gap 5"
 ``` 
 * Set only the left outer gap to 5
 ```bash
-riverctl send-layout-cmd bsp-layout og-left 5
+riverctl send-layout-cmd bsp-layout "og-left 5"
 ```   
 * Set only the right outer gap to 5
 ```bash
-riverctl send-layout-cmd bsp-layout og-right 5
+riverctl send-layout-cmd bsp-layout "og-right 5"
 ```
 * Set only the bottom outer gap to 5
 ```bash 
-riverctl send-layout-cmd bsp-layout og-bottom 5
+riverctl send-layout-cmd bsp-layout "og-bottom 5"
 ```  
 * Set only the top outer gap to 5
 ```bash 
-riverctl send-layout-cmd bsp-layout og-top 5
+riverctl send-layout-cmd bsp-layout "og-top 5"
 ``` 
 * Sets all inner gaps to 5 
 ```bash
-riverctl send-layout-cmd bsp-layout inner-gap 5
+riverctl send-layout-cmd bsp-layout "inner-gap 5"
 ``` 
 * Set only the left inner gap to 5 
 ```bash 
-riverctl send-layout-cmd bsp-layout ig-left 5
+riverctl send-layout-cmd bsp-layout "ig-left 5"
 ```
 * Set only the right inner gap to 5
 ```bash 
-riverctl send-layout-cmd bsp-layout ig-right 5
+riverctl send-layout-cmd bsp-layout "ig-right 5"
 ``` 
 * Set only the bottom inner gap to 5
 ```bash 
-riverctl send-layout-cmd bsp-layout ig-bottom 5
+riverctl send-layout-cmd bsp-layout "ig-bottom 5"
 ```
 * Set only the top inner gap to 5
 ```bash 
-riverctl send-layout-cmd bsp-layout ig-top 5
+riverctl send-layout-cmd bsp-layout "ig-top 5"
 ```
 
 ### Split Percent Commands 
 
 * Set both vertical and horizontal split percentage to 0.6
 ```bash 
-riverctl send-layout-cmd split-perc 0.6
+riverctl send-layout-cmd "split-perc 0.6"
 ```
 * Set only vertical split percentage to 0.6
 ```bash 
-riverctl send-layout-cmd v-split-perc 0.6
+riverctl send-layout-cmd "vsplit-perc 0.6"
 ```
 * Set only horizontal split percentage to 0.6
 ```bash 
-riverctl send-layout-cmd h-split-perc 0.6
+riverctl send-layout-cmd "hsplit-perc 0.6"
+```
+* Increase vertical split percentage by .01
+```bash 
+riverctl send-layout-cmd "inc-vsplit-perc 0.01"
+```
+* Decrease vertical split percentage by .01
+```bash 
+riverctl send-layout-cmd "dec-vsplit-perc 0.01"
+```
+* Increase horizontal split percentage by .01
+```bash 
+riverctl send-layout-cmd "inc-hsplit-perc 0.01"
+```
+* Decrease horizontal split percentage by .01
+```bash 
+riverctl send-layout-cmd "dec-hsplit-perc 0.01"
 ```
 
 ### Reverse Command 
 
 * Reverse the order that new views are added to the stack 
 ```bash 
-riverctl send-layout-cmd reverse 
+riverctl send-layout-cmd "reverse"
 ```
 
