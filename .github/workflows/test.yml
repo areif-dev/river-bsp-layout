@@ -26,6 +26,7 @@ on:
 
 jobs: 
   test:
+    runs-on: ubuntu-latest 
     env: 
       CARGO_TERM_COLOR: always
 
