@@ -367,8 +367,12 @@ impl Layout for BSPLayout {
 
         // Split perc command regex
         let default_split_re = Regex::new(r"^split-perc 0*\.\d+$").unwrap();
-        let vsr_re = Regex::new(r"^v-split-perc 0*\.\d+$").unwrap();
-        let hsr_re = Regex::new(r"^h-split-perc 0*\.\d+$").unwrap();
+        let vsr_re = Regex::new(r"^vsplit-perc 0*\.\d+$").unwrap();
+        let hsr_re = Regex::new(r"^hsplit-perc 0*\.\d+$").unwrap();
+        let ivsr_re = Regex::new(r"^inc-vsplit-perc 0*\.\d+$").unwrap();
+        let dvsr_re = Regex::new(r"^dec-vsplit-perc 0*\.\d+$").unwrap();
+        let ihsr_re = Regex::new(r"^inc-hsplit-perc 0*\.\d+$").unwrap();
+        let dhsr_re = Regex::new(r"^dec-hsplit-perc 0*\.\d+$").unwrap();
 
         // Reverse command regex
         let rev_re = Regex::new(r"^reverse$").unwrap();
@@ -394,12 +398,44 @@ impl Layout for BSPLayout {
         } else if igt_re.is_match(&cmd) {
             self.ig_top = parse_gap_cmd(&cmd)?;
         } else if default_split_re.is_match(&cmd) {
-            self.v_split_perc = parse_split_cmd(&cmd)?;
-            self.h_split_perc = parse_split_cmd(&cmd)?;
+            self.vsplit_perc = parse_split_cmd(&cmd)?;
+            self.hsplit_perc = parse_split_cmd(&cmd)?;
         } else if vsr_re.is_match(&cmd) {
-            self.v_split_perc = parse_split_cmd(&cmd)?;
+            self.vsplit_perc = parse_split_cmd(&cmd)?;
         } else if hsr_re.is_match(&cmd) {
-            self.h_split_perc = parse_split_cmd(&cmd)?;
+            self.hsplit_perc = parse_split_cmd(&cmd)?;
+        } else if ivsr_re.is_match(&cmd) {
+            let delta = parse_split_cmd(&cmd)?;
+            if self.vsplit_perc + delta >= 1.0 {
+                return Err(BSPLayoutError::CmdError(
+                    "Split percent may not be >= to 1.0".to_string(),
+                ));
+            }
+            self.vsplit_perc += delta;
+        } else if dvsr_re.is_match(&cmd) {
+            let delta = parse_split_cmd(&cmd)?;
+            if self.vsplit_perc - delta <= 0.0 {
+                return Err(BSPLayoutError::CmdError(
+                    "Split percent may not be <= to 0.0".to_string(),
+                ));
+            }
+            self.vsplit_perc -= delta;
+        } else if ihsr_re.is_match(&cmd) {
+            let delta = parse_split_cmd(&cmd)?;
+            if self.hsplit_perc + delta >= 1.0 {
+                return Err(BSPLayoutError::CmdError(
+                    "Split percent may not be >= to 1.0".to_string(),
+                ));
+            }
+            self.hsplit_perc += delta;
+        } else if dhsr_re.is_match(&cmd) {
+            let delta = parse_split_cmd(&cmd)?;
+            if self.hsplit_perc - delta <= 0.0 {
+                return Err(BSPLayoutError::CmdError(
+                    "Split percent may not be <= to 0.0".to_string(),
+                ));
+            }
+            self.hsplit_perc -= parse_split_cmd(&cmd)?;
         } else if rev_re.is_match(&cmd) {
             self.reversed = !self.reversed;
         } else {
@@ -880,6 +916,29 @@ mod tests {
         assert!(bsp
             .user_cmd("split-perc -0.1".to_string(), None, "eDP-1")
             .is_err());
+
+        bsp.user_cmd("split-perc 0.5".to_string(), None, "eDP-1")
+            .unwrap();
+        assert!(bsp
+            .user_cmd("inc-vsplit-perc 0.5".to_string(), None, "eDP-1")
+            .is_err());
+        assert!(bsp
+            .user_cmd("dec-vsplit-perc 0.5".to_string(), None, "eDP-1")
+            .is_err());
+        assert!(bsp
+            .user_cmd("inc-hsplit-perc 0.5".to_string(), None, "eDP-1")
+            .is_err());
+        assert!(bsp
+            .user_cmd("dec-hsplit-perc 0.5".to_string(), None, "eDP-1")
+            .is_err());
+        bsp.user_cmd("inc-vsplit-perc 0.4".to_string(), None, "eDP-1")
+            .unwrap();
+        bsp.user_cmd("dec-vsplit-perc 0.4".to_string(), None, "eDP-1")
+            .unwrap();
+        bsp.user_cmd("inc-hsplit-perc 0.4".to_string(), None, "eDP-1")
+            .unwrap();
+        bsp.user_cmd("dec-hsplit-perc 0.4".to_string(), None, "eDP-1")
+            .unwrap();
 
         bsp.reversed = false;
         bsp.user_cmd("reverse".to_string(), None, "eDP-1").unwrap();
