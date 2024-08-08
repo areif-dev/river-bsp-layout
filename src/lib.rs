@@ -765,7 +765,7 @@ mod tests {
             (0, 0, 768, 432)
         );
 
-        let second_view = layout.views.get(1).unwrap();
+        let second_view = layout.views.get(2).unwrap();
         assert_eq!(
             (
                 second_view.x,
@@ -773,10 +773,10 @@ mod tests {
                 second_view.width,
                 second_view.height,
             ),
-            (0, 432, 768, 648)
+            (768, 0, 1152, 432)
         );
 
-        let third_view = layout.views.get(2).unwrap();
+        let third_view = layout.views.get(1).unwrap();
         assert_eq!(
             (
                 third_view.x,
@@ -784,7 +784,7 @@ mod tests {
                 third_view.width,
                 third_view.height,
             ),
-            (768, 0, 460, 1080)
+            (0, 432, 768, 648)
         );
 
         let fourth_view = layout.views.get(3).unwrap();
@@ -795,7 +795,7 @@ mod tests {
                 fourth_view.width,
                 fourth_view.height,
             ),
-            (1228, 0, 692, 1080)
+            (768, 432, 1152, 648)
         );
     }
 
@@ -816,7 +816,7 @@ mod tests {
                 first_view.width,
                 first_view.height
             ),
-            (960, 540, 960, 540)
+            (960, 0, 960, 1080)
         );
 
         let second_view = layout.views.get(1).unwrap();
@@ -827,7 +827,7 @@ mod tests {
                 second_view.width,
                 second_view.height
             ),
-            (960, 0, 960, 540)
+            (0, 540, 960, 540)
         );
 
         let third_view = layout.views.get(2).unwrap();
@@ -838,7 +838,7 @@ mod tests {
                 third_view.width,
                 third_view.height
             ),
-            (0, 0, 960, 1080)
+            (0, 0, 960, 540)
         );
     }
 
