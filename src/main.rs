@@ -77,7 +77,7 @@ struct Cli {
     start_hsplit: bool,
 
     /// Reverse the order of the views as well as the order they are added.
-    #[arg(long, default_value_t = false)]
+    #[arg(long)]
     reverse: bool,
 }
 
