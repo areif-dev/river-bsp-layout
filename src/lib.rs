@@ -58,6 +58,11 @@ pub struct BSPLayout {
     /// when a vertical split takes place
     pub vsplit_perc: f32,
 
+    /// Whether the first split should be horizontal or not. If true, then start by dividing the
+    /// screen in half from right to left. If false, then start by dividing the screen in half from
+    /// top to bottom
+    pub start_hsplit: bool,
+
     /// If `true`, new views will be prepended to the list. Otherwise, new views will be appended.
     pub reversed: bool,
 }
@@ -82,6 +87,7 @@ impl BSPLayout {
             hsplit_perc: 0.5,
             vsplit_perc: 0.5,
             reversed: false,
+            start_hsplit: false,
         }
     }
 

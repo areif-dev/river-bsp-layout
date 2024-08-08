@@ -71,6 +71,11 @@ struct Cli {
     #[arg(long, short)]
     vsplit_perc: Option<f32>,
 
+    /// Whether the first split that's made should divide the screen horizontally. If this is not
+    /// set, then the first split will be vertical.
+    #[arg(long)]
+    start_hsplit: bool,
+
     /// Reverse the order of the views as well as the order they are added.
     #[arg(long, default_value_t = false)]
     reverse: bool,
@@ -101,6 +106,7 @@ fn main() {
     }
 
     layout.reversed = cli.reverse;
+    layout.start_hsplit = cli.start_hsplit;
 
     run(layout).unwrap();
 }
