@@ -69,7 +69,7 @@ pub struct BSPLayout {
 
 impl BSPLayout {
     /// Initialize a new instance of BSPLayout with inner gaps of 5 pixels and outer gaps of 10
-    /// pixels on each side, and a split percent of 50%.
+    /// pixels on each side, a split percent of 50%, and starting on a vertical split
     ///
     /// # Returns
     ///
@@ -115,8 +115,45 @@ impl BSPLayout {
         self.ig_bottom = new_gap;
     }
 
-    /// Perform the recursive division by two to evenly divide the screen as best
-    /// as possible
+    /// Shared setup between vsplit and hsplit functions. First checks that vsplit_perc and
+    /// hsplit_perc are in range, then creates the layout variable, and finally calculates how many
+    /// views are in each half of the split
+    ///
+    /// # Arguments
+    ///
+    /// * `view_count` - The total number of views accross both splits
+    ///
+    /// # Returns
+    ///
+    /// Tuple containing - in order - `half_view_count`, `views_remaining`, and the initial layout
+    /// variable
+    ///
+    /// # Errors
+    ///
+    /// If either split percentage is not > 0.0 and < 1.0, return `BSPLayoutError`
+    fn setup_split(&self, view_count: u32) -> Result<(u32, u32, GeneratedLayout), BSPLayoutError> {
+        if self.vsplit_perc <= 0.0
+            || self.vsplit_perc >= 1.0
+            || self.hsplit_perc <= 0.0
+            || self.hsplit_perc >= 1.0
+        {
+            return Err(BSPLayoutError::LayoutError(
+                "Split percents must be > 0.0 and less than 1.0".to_string(),
+            ));
+        }
+        let layout = GeneratedLayout {
+            layout_name: "bsp-layout".to_string(),
+            views: Vec::with_capacity(view_count as usize),
+        };
+
+        let half_view_count = view_count / 2;
+        let views_remaining = view_count % 2; // In case there are odd number of views
+
+        Ok((half_view_count, views_remaining, layout))
+    }
+
+    /// Divide the screen in two by splitting from right to left first, then subsequently from
+    /// top to bottom
     ///
     /// # Arguments
     ///
@@ -145,7 +182,7 @@ impl BSPLayout {
     ///
     /// A `GeneratedLayout` with `view_count` cells evenly distributed across the screen
     /// in a grid
-    fn handle_layout_helper(
+    fn hsplit(
         &self,
         origin_x: i32,
         origin_y: i32,
@@ -153,19 +190,7 @@ impl BSPLayout {
         canvas_height: u32,
         view_count: u32,
     ) -> Result<GeneratedLayout, BSPLayoutError> {
-        if self.vsplit_perc <= 0.0
-            || self.vsplit_perc >= 1.0
-            || self.hsplit_perc <= 0.0
-            || self.hsplit_perc >= 1.0
-        {
-            return Err(BSPLayoutError::LayoutError(
-                "Split percents must be > 0.0 and less than 1.0".to_string(),
-            ));
-        }
-        let mut layout = GeneratedLayout {
-            layout_name: "bsp-layout".to_string(),
-            views: Vec::with_capacity(view_count as usize),
-        };
+        let (half_view_count, views_remaining, mut layout) = self.setup_split(view_count)?;
 
         // Exit condition. When there is only one window left, it should take up the
         // entire available canvas
@@ -180,68 +205,158 @@ impl BSPLayout {
             return Ok(layout);
         }
 
-        let half_view_count = view_count / 2;
-        let views_remaining = view_count % 2; // In case there are odd number of views
-
-        let h1_width: u32;
-        let h1_height: u32;
-
-        let h2_width: u32;
-        let h2_height: u32;
-        let h2_x: i32;
-        let h2_y: i32;
-
-        if canvas_width >= canvas_height {
-            /* Vertical Split */
-
-            if self.reversed {
-                h2_width = (canvas_width as f32 * self.vsplit_perc) as u32 - self.ig_right;
-                h1_width = canvas_width - h2_width - self.ig_left - self.ig_right;
-            } else {
-                h1_width = (canvas_width as f32 * self.vsplit_perc) as u32 - self.ig_right;
-                h2_width = canvas_width - h1_width - self.ig_left - self.ig_right;
-            }
-            h1_height = canvas_height;
-
-            h2_height = canvas_height;
-            h2_x = h1_width as i32 + origin_x + (self.ig_left + self.ig_right) as i32;
-            h2_y = origin_y;
-        } else {
-            /* Horizontal Split */
-
-            if self.reversed {
-                h2_height = (canvas_height as f32 * self.hsplit_perc) as u32 - self.ig_bottom;
-                h1_height = canvas_height - h2_height - self.ig_top - self.ig_bottom;
-            } else {
-                h1_height = (canvas_height as f32 * self.hsplit_perc) as u32 - self.ig_bottom;
-                h2_height = canvas_height - h1_height - self.ig_top - self.ig_bottom;
-            }
-            h1_width = canvas_width;
-
-            h2_width = canvas_width;
-            h2_x = origin_x;
-            h2_y = h1_height as i32 + origin_y + (self.ig_bottom + self.ig_top) as i32;
+        let mut prime_split = (canvas_height as f32 * self.hsplit_perc) as u32;
+        if prime_split == 0 {
+            prime_split = 1;
         }
+        if prime_split >= canvas_height {
+            prime_split = canvas_height - 1;
+        }
+        let sec_split = canvas_height - prime_split;
 
-        /* Recursively split the two halves of the window */
-        let mut first_half =
-            self.handle_layout_helper(origin_x, origin_y, h1_width, h1_height, half_view_count)?;
+        let (prime_sub, sec_sub) = if !self.reversed {
+            (self.ig_bottom, self.ig_top)
+        } else {
+            (self.ig_top, self.ig_bottom)
+        };
 
-        let mut sec_half = self.handle_layout_helper(
-            h2_x,
-            h2_y,
-            h2_width,
-            h2_height,
+        let (prime_y, sec_y) = if !self.reversed {
+            (origin_y, prime_split as i32 + origin_y + sec_sub as i32)
+        } else {
+            (sec_split as i32 + origin_y + prime_sub as i32, origin_y)
+        };
+
+        let mut prime_layout = self.vsplit(
+            origin_x,
+            prime_y,
+            canvas_width,
+            if prime_sub < prime_split {
+                prime_split - prime_sub
+            } else {
+                1
+            },
+            half_view_count,
+        )?;
+
+        let mut sec_layout = self.vsplit(
+            origin_x,
+            sec_y,
+            canvas_width,
+            if sec_sub < sec_split {
+                sec_split - sec_sub
+            } else {
+                1
+            },
             half_view_count + views_remaining,
         )?;
 
-        if self.reversed {
-            layout.views.append(&mut sec_half.views);
-            layout.views.append(&mut first_half.views);
-        } else {
-            layout.views.append(&mut first_half.views);
-            layout.views.append(&mut sec_half.views);
+        layout.views.append(&mut prime_layout.views);
+        layout.views.append(&mut sec_layout.views);
+
+        Ok(layout)
+    }
+
+    /// Divide the screen in two by splitting from top to bottom first, then subsequently from
+    /// right to left
+    ///
+    /// # Arguments
+    ///
+    /// * `origin_x` - The x position of the top left of the space to be divided
+    /// relative to the entire display. For example, if you are dividing the entire
+    /// display, then the top left corner is 0, 0. If you are dividing the right
+    /// half of a 1920x1080 monitor, then the top left corner would be at 960, 0
+    ///
+    /// * `origin_y` - The y position of the top left of the space to be divided
+    /// relative to the entire display. For example, if you are dividing the entire
+    /// display, then the top left corner is 0, 0. If you are dividing the bottom
+    /// half of a 1920x1080 monitor, then the top left corner would be at 0, 540
+    ///
+    /// * `canvas_width` - The width in pixels of the area being divided. If you
+    /// are dividing all of a 1920x1080 monitor, then the `canvas_width` would be 1920.
+    /// If you are dividing the right half of the monitor, then the width is 960.
+    ///
+    /// * `canvas_height` - The height in pixels of the area being divided. If you
+    /// are dividing all of a 1920x1080 monitor, then the height would be 1080.
+    /// If you are dividing the bottom half of the monitor, then the height is 540.
+    ///
+    /// * `view_count` - How many windows / containers / apps / division the function
+    /// needs to make in total.
+    ///
+    /// # Returns
+    ///
+    /// A `GeneratedLayout` with `view_count` cells evenly distributed across the screen
+    /// in a grid
+    fn vsplit(
+        &self,
+        origin_x: i32,
+        origin_y: i32,
+        canvas_width: u32,
+        canvas_height: u32,
+        view_count: u32,
+    ) -> Result<GeneratedLayout, BSPLayoutError> {
+        let (half_view_count, views_remaining, mut layout) = self.setup_split(view_count)?;
+
+        // Exit condition. When there is only one window left, it should take up the
+        // entire available canvas
+        if view_count == 1 {
+            layout.views.push(Rectangle {
+                x: origin_x,
+                y: origin_y,
+                width: canvas_width,
+                height: canvas_height,
+            });
+
+            return Ok(layout);
         }
+
+        let mut prime_split = (canvas_width as f32 * self.vsplit_perc) as u32;
+        if prime_split == 0 {
+            prime_split = 1;
+        }
+        if prime_split >= canvas_width {
+            prime_split = canvas_width - 1;
+        }
+
+        let sec_split = canvas_width - prime_split;
+
+        let (prime_sub, sec_sub) = if !self.reversed {
+            (self.ig_right, self.ig_left)
+        } else {
+            (self.ig_left, self.ig_right)
+        };
+
+        let (prime_x, sec_x) = if !self.reversed {
+            (origin_x, prime_split as i32 + origin_x + sec_sub as i32)
+        } else {
+            (sec_split as i32 + origin_x + prime_sub as i32, origin_x)
+        };
+
+        let mut prime_layout = self.hsplit(
+            prime_x,
+            origin_y,
+            if prime_sub < prime_split {
+                prime_split - prime_sub
+            } else {
+                1
+            },
+            canvas_height,
+            half_view_count,
+        )?;
+
+        let mut sec_layout = self.hsplit(
+            sec_x,
+            origin_y,
+            if sec_sub < sec_split {
+                sec_split - sec_sub
+            } else {
+                1
+            },
+            canvas_height,
+            half_view_count + views_remaining,
+        )?;
+
+        layout.views.append(&mut prime_layout.views);
+        layout.views.append(&mut sec_layout.views);
 
         Ok(layout)
     }
@@ -481,13 +596,23 @@ impl Layout for BSPLayout {
         _tags: u32,
         _output: &str,
     ) -> Result<GeneratedLayout, Self::Error> {
-        Ok(self.handle_layout_helper(
-            self.og_left as i32,
-            self.og_top as i32,
-            usable_width - self.og_left - self.og_right,
-            usable_height - self.og_top - self.og_bottom,
-            view_count,
-        ))?
+        if !self.start_hsplit {
+            Ok(self.vsplit(
+                self.og_left as i32,
+                self.og_top as i32,
+                usable_width - self.og_left - self.og_right,
+                usable_height - self.og_top - self.og_bottom,
+                view_count,
+            ))?
+        } else {
+            Ok(self.hsplit(
+                self.og_left as i32,
+                self.og_top as i32,
+                usable_width - self.og_left - self.og_right,
+                usable_height - self.og_top - self.og_bottom,
+                view_count,
+            ))?
+        }
     }
 }
 
