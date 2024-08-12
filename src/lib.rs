@@ -1,4 +1,6 @@
-use regex::Regex;
+pub mod user_cmd;
+
+use clap::Parser;
 use river_layout_toolkit::{GeneratedLayout, Layout, Rectangle};
 use std::fmt::Display;
 
@@ -472,99 +474,109 @@ impl Layout for BSPLayout {
         _tags: Option<u32>,
         _output: &str,
     ) -> Result<(), Self::Error> {
-        // Outer gap command regex
-        let og_re = Regex::new(r"^outer-gap \d+$").unwrap();
-        let ogl_re = Regex::new(r"^og-left \d+$").unwrap();
-        let ogr_re = Regex::new(r"^og-right \d+$").unwrap();
-        let ogb_re = Regex::new(r"^og-bottom \d+$").unwrap();
-        let ogt_re = Regex::new(r"^og-top \d+$").unwrap();
-
-        // Inner gap commnad regex
-        let inner_re = Regex::new(r"^inner-gap \d+$").unwrap();
-        let igl_re = Regex::new(r"^ig-left \d+$").unwrap();
-        let igr_re = Regex::new(r"^ig-right \d+$").unwrap();
-        let igb_re = Regex::new(r"^ig-bottom \d+$").unwrap();
-        let igt_re = Regex::new(r"^ig-top \d+$").unwrap();
-
-        // Split perc command regex
-        let default_split_re = Regex::new(r"^split-perc 0*\.\d+$").unwrap();
-        let vsr_re = Regex::new(r"^vsplit-perc 0*\.\d+$").unwrap();
-        let hsr_re = Regex::new(r"^hsplit-perc 0*\.\d+$").unwrap();
-        let ivsr_re = Regex::new(r"^inc-vsplit-perc 0*\.\d+$").unwrap();
-        let dvsr_re = Regex::new(r"^dec-vsplit-perc 0*\.\d+$").unwrap();
-        let ihsr_re = Regex::new(r"^inc-hsplit-perc 0*\.\d+$").unwrap();
-        let dhsr_re = Regex::new(r"^dec-hsplit-perc 0*\.\d+$").unwrap();
-
-        // Reverse command regex
-        let rev_re = Regex::new(r"^reverse$").unwrap();
-
-        if og_re.is_match(&cmd) {
-            self.set_all_outer_gaps(parse_gap_cmd(&cmd)?);
-        } else if ogl_re.is_match(&cmd) {
-            self.og_left = parse_gap_cmd(&cmd)?;
-        } else if ogr_re.is_match(&cmd) {
-            self.og_right = parse_gap_cmd(&cmd)?;
-        } else if ogb_re.is_match(&cmd) {
-            self.og_bottom = parse_gap_cmd(&cmd)?;
-        } else if ogt_re.is_match(&cmd) {
-            self.og_top = parse_gap_cmd(&cmd)?;
-        } else if inner_re.is_match(&cmd) {
-            self.set_all_inner_gaps(parse_gap_cmd(&cmd)?);
-        } else if igl_re.is_match(&cmd) {
-            self.ig_left = parse_gap_cmd(&cmd)?;
-        } else if igr_re.is_match(&cmd) {
-            self.ig_right = parse_gap_cmd(&cmd)?;
-        } else if igb_re.is_match(&cmd) {
-            self.ig_bottom = parse_gap_cmd(&cmd)?;
-        } else if igt_re.is_match(&cmd) {
-            self.ig_top = parse_gap_cmd(&cmd)?;
-        } else if default_split_re.is_match(&cmd) {
-            self.vsplit_perc = parse_split_cmd(&cmd)?;
-            self.hsplit_perc = parse_split_cmd(&cmd)?;
-        } else if vsr_re.is_match(&cmd) {
-            self.vsplit_perc = parse_split_cmd(&cmd)?;
-        } else if hsr_re.is_match(&cmd) {
-            self.hsplit_perc = parse_split_cmd(&cmd)?;
-        } else if ivsr_re.is_match(&cmd) {
-            let delta = parse_split_cmd(&cmd)?;
-            if self.vsplit_perc + delta >= 1.0 {
-                return Err(BSPLayoutError::CmdError(
-                    "Split percent may not be >= to 1.0".to_string(),
-                ));
+        let mut cmd: Vec<&str> = cmd.split(" ").collect();
+        cmd.insert(0, "");
+        let cmd = match user_cmd::UserCmd::try_parse_from(cmd) {
+            Ok(c) => c,
+            Err(e) => {
+                eprintln!("{}", e);
+                return Ok(());
             }
-            self.vsplit_perc += delta;
-        } else if dvsr_re.is_match(&cmd) {
-            let delta = parse_split_cmd(&cmd)?;
-            if self.vsplit_perc - delta <= 0.0 {
-                return Err(BSPLayoutError::CmdError(
-                    "Split percent may not be <= to 0.0".to_string(),
-                ));
-            }
-            self.vsplit_perc -= delta;
-        } else if ihsr_re.is_match(&cmd) {
-            let delta = parse_split_cmd(&cmd)?;
-            if self.hsplit_perc + delta >= 1.0 {
-                return Err(BSPLayoutError::CmdError(
-                    "Split percent may not be >= to 1.0".to_string(),
-                ));
-            }
-            self.hsplit_perc += delta;
-        } else if dhsr_re.is_match(&cmd) {
-            let delta = parse_split_cmd(&cmd)?;
-            if self.hsplit_perc - delta <= 0.0 {
-                return Err(BSPLayoutError::CmdError(
-                    "Split percent may not be <= to 0.0".to_string(),
-                ));
-            }
-            self.hsplit_perc -= parse_split_cmd(&cmd)?;
-        } else if rev_re.is_match(&cmd) {
-            self.reversed = !self.reversed;
-        } else {
-            return Err(BSPLayoutError::CmdError(format!(
-                "Command not recognized: {}",
-                cmd
-            )));
+        };
+        if cmd.start_hsplit && cmd.start_vsplit {
+            return Err(BSPLayoutError::CmdError(
+                "start-hsplit and start-vsplit are mutually exclusive. Please select only one"
+                    .to_string(),
+            ));
+        } else if cmd.start_hsplit && !cmd.start_vsplit {
+            self.start_hsplit = true;
+        } else if cmd.start_vsplit && !cmd.start_hsplit {
+            self.start_hsplit = false;
         }
+
+        if cmd.reverse {
+            self.reversed = !self.reversed;
+        }
+
+        if let Some(p) = cmd.default_split_perc {
+            self.hsplit_perc = p;
+            self.vsplit_perc = p;
+        }
+        if let Some(p) = cmd.vsplit_perc {
+            self.vsplit_perc = p;
+        }
+        if let Some(p) = cmd.hsplit_perc {
+            self.hsplit_perc = p;
+        }
+
+        if let Some(g) = cmd.default_outer_gap {
+            self.og_top = g;
+            self.og_bottom = g;
+            self.og_right = g;
+            self.og_left = g;
+        }
+        if let Some(g) = cmd.og_top {
+            self.og_top = g;
+        }
+        if let Some(g) = cmd.og_bottom {
+            self.og_bottom = g;
+        }
+        if let Some(g) = cmd.og_right {
+            self.og_right = g;
+        }
+        if let Some(g) = cmd.og_left {
+            self.og_left = g;
+        }
+
+        if let Some(g) = cmd.default_inner_gap {
+            self.ig_top = g;
+            self.ig_bottom = g;
+            self.ig_right = g;
+            self.ig_left = g;
+        }
+        if let Some(g) = cmd.ig_top {
+            self.ig_top = g;
+        }
+        if let Some(g) = cmd.ig_bottom {
+            self.ig_bottom = g;
+        }
+        if let Some(g) = cmd.ig_right {
+            self.ig_right = g;
+        }
+        if let Some(g) = cmd.ig_left {
+            self.ig_left = g;
+        }
+
+        if let Some(p) = cmd.inc_hsplit {
+            if self.hsplit_perc + p < 1.0 {
+                self.hsplit_perc += p;
+            } else {
+                self.hsplit_perc = 0.9999
+            }
+        }
+        if let Some(p) = cmd.inc_vsplit {
+            if self.vsplit_perc + p < 1.0 {
+                self.vsplit_perc += p;
+            } else {
+                self.vsplit_perc = 0.9999;
+            }
+        }
+
+        if let Some(p) = cmd.dec_hsplit {
+            if self.hsplit_perc - p > 0.0 {
+                self.hsplit_perc -= p;
+            } else {
+                self.hsplit_perc = 0.0001
+            }
+        }
+        if let Some(p) = cmd.dec_vsplit {
+            if self.vsplit_perc - p > 0.0 {
+                self.vsplit_perc -= p;
+            } else {
+                self.vsplit_perc = 0.0001
+            }
+        }
+
         Ok(())
     }
 
