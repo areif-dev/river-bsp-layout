@@ -2,7 +2,7 @@
 name = "river-bsp-layout"
 version = "2.1.0"
 edition = "2021"
-author = "AJ Reifsnyder <ajreifsnyder@protonmail.com>"
+authors = ["AJ Reifsnyder <ajreifsnyder@protonmail.com>"]
 about = "Binary space partitioned layout for the tiling Wayland compositor River."
 license = "GPL-3.0"
 description = "Binary space partitioned layout for the tiling Wayland compositor River."
