@@ -483,99 +483,13 @@ impl Layout for BSPLayout {
                 return Ok(());
             }
         };
-        if cmd.start_hsplit && cmd.start_vsplit {
-            return Err(BSPLayoutError::CmdError(
-                "start-hsplit and start-vsplit are mutually exclusive. Please select only one"
-                    .to_string(),
-            ));
-        } else if cmd.start_hsplit && !cmd.start_vsplit {
-            self.start_hsplit = true;
-        } else if cmd.start_vsplit && !cmd.start_hsplit {
-            self.start_hsplit = false;
-        }
 
-        if cmd.reverse {
-            self.reversed = !self.reversed;
-        }
-
-        if let Some(p) = cmd.default_split_perc {
-            self.hsplit_perc = p;
-            self.vsplit_perc = p;
-        }
-        if let Some(p) = cmd.vsplit_perc {
-            self.vsplit_perc = p;
-        }
-        if let Some(p) = cmd.hsplit_perc {
-            self.hsplit_perc = p;
-        }
-
-        if let Some(g) = cmd.default_outer_gap {
-            self.og_top = g;
-            self.og_bottom = g;
-            self.og_right = g;
-            self.og_left = g;
-        }
-        if let Some(g) = cmd.og_top {
-            self.og_top = g;
-        }
-        if let Some(g) = cmd.og_bottom {
-            self.og_bottom = g;
-        }
-        if let Some(g) = cmd.og_right {
-            self.og_right = g;
-        }
-        if let Some(g) = cmd.og_left {
-            self.og_left = g;
-        }
-
-        if let Some(g) = cmd.default_inner_gap {
-            self.ig_top = g;
-            self.ig_bottom = g;
-            self.ig_right = g;
-            self.ig_left = g;
-        }
-        if let Some(g) = cmd.ig_top {
-            self.ig_top = g;
-        }
-        if let Some(g) = cmd.ig_bottom {
-            self.ig_bottom = g;
-        }
-        if let Some(g) = cmd.ig_right {
-            self.ig_right = g;
-        }
-        if let Some(g) = cmd.ig_left {
-            self.ig_left = g;
-        }
-
-        if let Some(p) = cmd.inc_hsplit {
-            if self.hsplit_perc + p < 1.0 {
-                self.hsplit_perc += p;
-            } else {
-                self.hsplit_perc = 0.9999
-            }
-        }
-        if let Some(p) = cmd.inc_vsplit {
-            if self.vsplit_perc + p < 1.0 {
-                self.vsplit_perc += p;
-            } else {
-                self.vsplit_perc = 0.9999;
-            }
-        }
-
-        if let Some(p) = cmd.dec_hsplit {
-            if self.hsplit_perc - p > 0.0 {
-                self.hsplit_perc -= p;
-            } else {
-                self.hsplit_perc = 0.0001
-            }
-        }
-        if let Some(p) = cmd.dec_vsplit {
-            if self.vsplit_perc - p > 0.0 {
-                self.vsplit_perc -= p;
-            } else {
-                self.vsplit_perc = 0.0001
-            }
-        }
+        cmd.handle_outer_gaps(self);
+        cmd.handle_inner_gaps(self);
+        cmd.handle_start_split(self)?;
+        cmd.handle_set_split(self);
+        cmd.handle_ch_split(self);
+        cmd.handle_reverse(self);
 
         Ok(())
     }

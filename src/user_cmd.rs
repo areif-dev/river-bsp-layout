@@ -1,6 +1,6 @@
 use clap::{ArgGroup, Parser};
 
-use crate::BSPLayout;
+use crate::{BSPLayout, BSPLayoutError};
 
 #[derive(Parser)]
 pub struct UserCmd {
@@ -72,7 +72,7 @@ pub struct UserCmd {
     pub start_hsplit: bool,
 
     /// Set the first split to vertical
-    #[arg(long, help_heading = "Split Options", conflicts_with("start_hsplit"))]
+    #[arg(long, help_heading = "Split Options")]
     pub start_vsplit: bool,
 
     /// Increase the hsplit percentage by a certain amount.
@@ -94,4 +94,117 @@ pub struct UserCmd {
     /// Reverse the order of the views as well as the order they are added.
     #[arg(long, help_heading = "Other Options")]
     pub reverse: bool,
+}
+
+impl UserCmd {
+    pub fn handle_outer_gaps(&self, layout: &mut BSPLayout) {
+        if let Some(g) = self.default_outer_gap {
+            layout.og_top = g;
+            layout.og_bottom = g;
+            layout.og_right = g;
+            layout.og_left = g;
+        }
+        if let Some(g) = self.og_top {
+            layout.og_top = g;
+        }
+        if let Some(g) = self.og_bottom {
+            layout.og_bottom = g;
+        }
+        if let Some(g) = self.og_right {
+            layout.og_right = g;
+        }
+        if let Some(g) = self.og_left {
+            layout.og_left = g;
+        }
+    }
+
+    pub fn handle_inner_gaps(&self, layout: &mut BSPLayout) {
+        if let Some(g) = self.default_inner_gap {
+            layout.ig_top = g;
+            layout.ig_bottom = g;
+            layout.ig_right = g;
+            layout.ig_left = g;
+        }
+        if let Some(g) = self.ig_top {
+            layout.ig_top = g;
+        }
+        if let Some(g) = self.ig_bottom {
+            layout.ig_bottom = g;
+        }
+        if let Some(g) = self.ig_right {
+            layout.ig_right = g;
+        }
+        if let Some(g) = self.ig_left {
+            layout.ig_left = g;
+        }
+    }
+
+    pub fn handle_ch_split(&self, layout: &mut BSPLayout) {
+        if let Some(p) = self.inc_hsplit {
+            if layout.hsplit_perc + p < 1.0 {
+                layout.hsplit_perc += p;
+            } else {
+                layout.hsplit_perc = 0.9999
+            }
+        }
+        if let Some(p) = self.inc_vsplit {
+            if layout.vsplit_perc + p < 1.0 {
+                layout.vsplit_perc += p;
+            } else {
+                layout.vsplit_perc = 0.9999;
+            }
+        }
+
+        if let Some(p) = self.dec_hsplit {
+            if layout.hsplit_perc - p > 0.0 {
+                layout.hsplit_perc -= p;
+            } else {
+                layout.hsplit_perc = 0.0001
+            }
+        }
+        if let Some(p) = self.dec_vsplit {
+            if layout.vsplit_perc - p > 0.0 {
+                layout.vsplit_perc -= p;
+            } else {
+                layout.vsplit_perc = 0.0001
+            }
+        }
+    }
+
+    pub fn handle_start_split(&self, layout: &mut BSPLayout) -> Result<(), BSPLayoutError> {
+        if self.start_hsplit && self.start_vsplit {
+            eprintln!(
+                "start-hsplit and start-vsplit are mutually exclusive. Please select only one"
+            );
+            return Err(BSPLayoutError::CmdError(
+                "start-hsplit and start-vsplit are mutually exclusive. Please select only one"
+                    .to_string(),
+            ));
+        } else if self.start_hsplit && !self.start_vsplit {
+            layout.start_hsplit = true;
+        } else if self.start_vsplit && !self.start_hsplit {
+            layout.start_hsplit = false;
+        }
+
+        Ok(())
+    }
+
+    pub fn handle_set_split(&self, layout: &mut BSPLayout) {
+        if let Some(p) = self.default_split_perc {
+            layout.hsplit_perc = p;
+            layout.vsplit_perc = p;
+        }
+        if let Some(p) = self.vsplit_perc {
+            layout.vsplit_perc = p;
+        }
+        if let Some(p) = self.hsplit_perc {
+            layout.hsplit_perc = p;
+        }
+    }
+
+    pub fn handle_reverse(&self, layout: &mut BSPLayout) {
+        if self.reverse {
+            layout.reversed = !layout.reversed;
+        }
+    }
 }
