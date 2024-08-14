@@ -162,7 +162,7 @@ river-bsp-layout --inner-gap 5 --outer-gap 10 --split-perc 0.61803
 
 For the most part, you can pass the same options to `riverctl send-layout-cmd` that you would send to bsp-layout when starting it initially. However, some additional `riverctl` options exist, such as `--start-vsplit`, which will set a vertical split as the primary split. 
 
-Addtionally, there are the options `--(inc|dec)(h|v)split`, which will allow you to add or subtract a given amount from the current split percentage. This command can be useful to temporarily draw more focus to a particular window, and is very handy when bound to a keybind.
+Addtionally, there are the options `--(inc|dec)-(h|v)split`, which will allow you to add or subtract a given amount from the current split percentage. This command can be useful to temporarily draw more focus to a particular window, and is very handy when bound to a keybind.
 
 Finally, the `--reverse` option -- while not new -- does behave slightly differently to the cli option of the same name. The cli behavior is to cause new views to be rendered to the right and bottom side of the screen, whereas the user cmd option will flip the stack to the opposite of what the existing state is everytime it's called. 
 
