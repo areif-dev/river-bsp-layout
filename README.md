@@ -89,44 +89,38 @@ river-bsp-layout --inner-gap 5 --outer-gap 10 --split-perc 0.5 &
 
 ## CLI Help
 
-### Binary space partitioned layout for the tiling Wayland compositor River.
+```bash 
+Usage: river-bsp-layout [OPTIONS]
 
-### Usage: river-bsp-layout [OPTIONS]
+Options:
+  -h, --help     Print help
+  -V, --version  Print version
 
-### Options:
+Inner Gap Options:
+  -i, --inner-gap <DEFAULT_INNER_GAP>  The number of pixels to pad each inner edge of a window by default [default: 0]
+  -l, --ig-left <IG_LEFT>              The number of pixels to pad the left inner edge of each window. This Overrides `default_inner_gap`. Optional
+  -r, --ig-right <IG_RIGHT>            The number of pixels to pad the right inner edge of each window. This Overrides `default_inner_gap`. Optional
+  -b, --ig-bottom <IG_BOTTOM>          The number of pixels to pad the bottom inner edge of each window. This Overrides `default_inner_gap`. Optional
+  -t, --ig-top <IG_TOP>                The number of pixels to pad the top inner edge of each window. This Overrides `default_inner_gap`. Optional
 
-* -i, --inner-gap <DEFAULT_INNER_GAP>
-          The number of pixels to pad each inner edge of a window by default [default: 0]
-* -l, --ig-left <IG_LEFT>
-          The number of pixels to pad the left inner edge of each window. This Overrides `default_inner_gap`. Optional
-* -r, --ig-right <IG_RIGHT>
-          The number of pixels to pad the right inner edge of each window. This Overrides `default_inner_gap`. Optional
-* -b, --ig-bottom <IG_BOTTOM>
-          The number of pixels to pad the bottom inner edge of each window. This Overrides `default_inner_gap`. Optional
-* -t, --ig-top <IG_TOP>
-          The number of pixels to pad the top inner edge of each window. This Overrides `default_inner_gap`. Optional
-* -o, --outer-gap <DEFAULT_OUTER_GAP>
-          The default size of the gap between windows and the edge of the screen [default: 0]
-* -L, --og-left <OG_LEFT>
-          The number of pixels to place between the left screen edge and any windows. Overrides `default_outer_gap` for the left side. Optional
-* -R, --og-right <OG_RIGHT>
-          The number of pixels to place between the right screen edge and any windows. Overrides `default_outer_gap` for the right side. Optional
-* -B, --og-bottom <OG_BOTTOM>
-          The number of pixels to place between the bottom screen edge and any windows. Overrides `default_outer_gap` for the bottom side. Optional
-* -T, --og-top <OG_TOP>
-          The number of pixels to place between the top screen edge and any windows. Overrides `default_outer_gap` for the top side. Optional
-* -s, --split-perc <DEFAULT_SPLIT_PERC>
-          The default percentage of available area that the primary window should occupy after any split takes place [default: 0.5]
-* -H, --hsplit-perc <H_SPLIT_PERC>
-          The percentage of available area that the primary window should occupy after a horizontal split. This will override the value of `default_split_perc` only for horizontal splits
-* -v, --vsplit-perc <V_SPLIT_PERC>
-          The percentage of available area that the primary window should occupy after a vertical split. This will override the value of `default_split_perc` only for vertical splits
-* --reverse
-          Reverse the order of the views as well as the order they are added
-* -h, --help
-          Print help
-* -V, --version
-          Print version
+Outer Gap Options:
+  -o, --outer-gap <DEFAULT_OUTER_GAP>  The default size of the gap between windows and the edge of the screen [default: 0]
+  -L, --og-left <OG_LEFT>              The number of pixels to place between the left screen edge and any windows. Overrides `default_outer_gap` for the left side. Optional
+  -R, --og-right <OG_RIGHT>            The number of pixels to place between the right screen edge and any windows. Overrides `default_outer_gap` for the right side. Optional
+  -B, --og-bottom <OG_BOTTOM>          The number of pixels to place between the bottom screen edge and any windows. Overrides `default_outer_gap` for the bottom side. Optional
+  -T, --og-top <OG_TOP>                The number of pixels to place between the top screen edge and any windows. Overrides `default_outer_gap` for the top side. Optional
+
+Split Options:
+  -s, --split-perc <DEFAULT_SPLIT_PERC>  The default percentage of available area that the primary window should occupy after any split takes place [default: 0.5]
+  -H, --hsplit-perc <HSPLIT_PERC>        The percentage of available area that the primary window should occupy after a horizontal split. This will override the value of `default_split_perc` only for
+                                         horizontal splits
+  -v, --vsplit-perc <VSPLIT_PERC>        The percentage of available area that the primary window should occupy after a vertical split. This will override the value of `default_split_perc` only for vertical
+                                         splits
+      --start-hsplit                     Whether the first split that's made should divide the screen horizontally. If this is not set, then the first split will be vertical
+
+Other Options:
+      --reverse  Reverse the order of the views as well as the order they are added
+```
 
 ## CLI Examples
 
@@ -164,88 +158,97 @@ This run demonstrates the ability to split the screen into unequal chunks whenev
 river-bsp-layout --inner-gap 5 --outer-gap 10 --split-perc 0.61803
 ```
 
-## riverctl Commands
+## Riverctl User Commands
 
-`river-bsp-layout` supports the following commands from `riverctl send-layout-cmd`:
+For the most part, you can pass the same options to `riverctl send-layout-cmd` that you would send to bsp-layout when starting it initially. However, some additional `riverctl` options exist, such as `--start-vsplit`, which will set a vertical split as the primary split. 
 
-### Gap Commands 
+Addtionally, there are the options `--(inc|dec)(h|v)split`, which will allow you to add or subtract a given amount from the current split percentage. This command can be useful to temporarily draw more focus to a particular window, and is very handy when bound to a keybind.
 
-* Sets all outer gaps to 5
-```bash
-riverctl send-layout-cmd bsp-layout "outer-gap 5"
-``` 
-* Set only the left outer gap to 5
-```bash
-riverctl send-layout-cmd bsp-layout "og-left 5"
-```   
-* Set only the right outer gap to 5
-```bash
-riverctl send-layout-cmd bsp-layout "og-right 5"
-```
-* Set only the bottom outer gap to 5
-```bash 
-riverctl send-layout-cmd bsp-layout "og-bottom 5"
-```  
-* Set only the top outer gap to 5
-```bash 
-riverctl send-layout-cmd bsp-layout "og-top 5"
-``` 
-* Sets all inner gaps to 5 
-```bash
-riverctl send-layout-cmd bsp-layout "inner-gap 5"
-``` 
-* Set only the left inner gap to 5 
-```bash 
-riverctl send-layout-cmd bsp-layout "ig-left 5"
-```
-* Set only the right inner gap to 5
-```bash 
-riverctl send-layout-cmd bsp-layout "ig-right 5"
-``` 
-* Set only the bottom inner gap to 5
-```bash 
-riverctl send-layout-cmd bsp-layout "ig-bottom 5"
-```
-* Set only the top inner gap to 5
-```bash 
-riverctl send-layout-cmd bsp-layout "ig-top 5"
-```
+Finally, the `--reverse` option -- while not new -- does behave slightly differently to the cli option of the same name. The cli behavior is to cause new views to be rendered to the right and bottom side of the screen, whereas the user cmd option will flip the stack to the opposite of what the existing state is everytime it's called. 
 
-### Split Percent Commands 
+Unlike in previous versions of bsp-layout where only one command could be parsed at a time, versions 2.1.0 and forward are able to parse almost any combination of options passed at once. The only exception to this being `--start-vsplit` and `--start-hsplit`, which are mutually exclusive with each other.
 
-* Set both vertical and horizontal split percentage to 0.6
 ```bash 
-riverctl send-layout-cmd "split-perc 0.6"
-```
-* Set only vertical split percentage to 0.6
-```bash 
-riverctl send-layout-cmd "vsplit-perc 0.6"
-```
-* Set only horizontal split percentage to 0.6
-```bash 
-riverctl send-layout-cmd "hsplit-perc 0.6"
-```
-* Increase vertical split percentage by .01
-```bash 
-riverctl send-layout-cmd "inc-vsplit-perc 0.01"
-```
-* Decrease vertical split percentage by .01
-```bash 
-riverctl send-layout-cmd "dec-vsplit-perc 0.01"
-```
-* Increase horizontal split percentage by .01
-```bash 
-riverctl send-layout-cmd "inc-hsplit-perc 0.01"
-```
-* Decrease horizontal split percentage by .01
-```bash 
-riverctl send-layout-cmd "dec-hsplit-perc 0.01"
-```
+Usage: riverctl send-layout-cmd bsp-layout [OPTIONS]
 
-### Reverse Command 
+Inner Gap Options:
+  -i, --inner-gap <DEFAULT_INNER_GAP>
+          The number of pixels to pad each inner edge of a window by default
 
-* Reverse the order that new views are added to the stack 
-```bash 
-riverctl send-layout-cmd "reverse"
+  -l, --ig-left <IG_LEFT>
+          The number of pixels to pad the left inner edge of each window. This Overrides `default_inner_gap`. Optional
+
+  -r, --ig-right <IG_RIGHT>
+          The number of pixels to pad the right inner edge of each window. This Overrides `default_inner_gap`. Optional
+
+  -b, --ig-bottom <IG_BOTTOM>
+          The number of pixels to pad the bottom inner edge of each window. This Overrides `default_inner_gap`. Optional
+
+  -t, --ig-top <IG_TOP>
+          The number of pixels to pad the top inner edge of each window. This Overrides `default_inner_gap`. Optional
+
+Outer Gap Options:
+  -o, --outer-gap <DEFAULT_OUTER_GAP>
+          The default size of the gap between windows and the edge of the screen
+
+  -L, --og-left <OG_LEFT>
+          The number of pixels to place between the left screen edge and any windows. Overrides `default_outer_gap` for the left side. Optional
+
+  -R, --og-right <OG_RIGHT>
+          The number of pixels to place between the right screen edge and any windows. Overrides `default_outer_gap` for the right side. Optional
+
+  -B, --og-bottom <OG_BOTTOM>
+          The number of pixels to place between the bottom screen edge and any windows. Overrides `default_outer_gap` for the bottom side. Optional
+
+  -T, --og-top <OG_TOP>
+          The number of pixels to place between the top screen edge and any windows. Overrides `default_outer_gap` for the top side. Optional
+
+Split Options:
+  -s, --split-perc <DEFAULT_SPLIT_PERC>
+          The default percentage of available area that the primary window should occupy after any split takes place
+
+  -H, --hsplit-perc <HSPLIT_PERC>
+          The percentage of available area that the primary window should occupy after a horizontal split. This will override the value of `default_split_perc` only for horizontal splits
+
+  -v, --vsplit-perc <VSPLIT_PERC>
+          The percentage of available area that the primary window should occupy after a vertical split. This will override the value of `default_split_perc` only for vertical splits
+
+      --start-hsplit
+          Set the first split to horizontal. Mutually exclusive with `--start-vsplit`
+
+      --start-vsplit
+          Set the first split to vertical. Mutually exclusive with `--start-hsplit`
+
+      --inc-hsplit <INC_HSPLIT>
+          Increase the hsplit percentage by a certain amount
+
+      --inc-vsplit <INC_VSPLIT>
+          Increase the vsplit percentage by a certain amount
+
+      --dec-vsplit <DEC_VSPLIT>
+          Decrease the vsplit percentage by a certain amount
+
+      --dec-hsplit <DEC_HSPLIT>
+          Decrease the hsplit percentage by a certain amount
+
+Other Options:
+      --reverse
+          Reverse the order of the views as well as the order they are added
 ```
 
+## User Commands Examples 
+
+* Flip the orientation of the stack and set all inner gaps to be 5 pixels wide 
+```bash 
+riverctl send-layout-cmd bsp-layout "--reverse -i 5"
+```
+
+* Map a keybind to increase the vertical split percentage by a small amount 
+```bash 
+riverctl map normal $MOD+Shift L send-layout-cmd bsp-layout "--inc-vsplit .005"
+```
+
+* Set the first split of the stack to be horizontal
+```bash 
+riverctl send-layout-cmd bsp-layout "--start-hsplit"
+```
