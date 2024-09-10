@@ -1,6 +1,6 @@
 [package]
 name = "river-bsp-layout"
-version = "2.1.0"
+version = "2.1.1"
 edition = "2021"
 authors = ["AJ Reifsnyder <ajreifsnyder@protonmail.com>"]
 about = "Binary space partitioned layout for the tiling Wayland compositor River."
