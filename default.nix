@@ -1,14 +1,8 @@
-{ fetchFromGitHub, rustPlatform, lib }:
-rustPlatform.buildRustPackage rec {
+{ fetchFromGitHub, rustPlatform, lib, version ? "git" }:
+rustPlatform.buildRustPackage {
   pname = "river-bsp-layout";
-  version = "2.1.0";
+  inherit version;
 
-  src = fetchFromGitHub {
-    owner = "areif-dev";
-    repo = "river-bsp-layout";
-    rev = "v${version}";
-    sha256 = "sha256-LRVZPAS4V5PtrqyOkKUfrZuwLqPZbLoyjn2DPxCFE2o=";
-  };
-
+  src = ./.;
   cargoLock.lockFile = ./Cargo.lock;
 }
