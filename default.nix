@@ -1,4 +1,4 @@
-{ fetchFromGitHub, rustPlatform, lib, version ? "git" }:
+{ rustPlatform, version ? "git" }:
 rustPlatform.buildRustPackage {
   pname = "river-bsp-layout";
   inherit version;

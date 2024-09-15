@@ -14,7 +14,7 @@
       flake = {
         overlays.default = final: prev: {
           river-bsp-layout = final.callPackage ./default.nix {
-            inherit (prev) fetchFromGitHub rustPlatform;
+            inherit (prev) rustPlatform;
           };
         };
       };
