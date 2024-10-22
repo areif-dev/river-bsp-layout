@@ -41,6 +41,17 @@ dnf copr enable areif-dev/river-bsp-layout
 dnf install river-bsp-layout
 ```
 
+### NixOS 
+
+```nix 
+# configuration.nix 
+
+environment.systemPackages = with pkgs; [
+  # Other packages ...
+  river-bsp-layout
+];
+```
+
 ### Other - Cargo 
 
 ```bash
