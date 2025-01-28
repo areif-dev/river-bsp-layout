@@ -65,7 +65,7 @@ jobs:
       - name: Tag Release 
         uses: softprops/action-gh-release@v2
         with: 
-          draft: false 
+          draft: true
           prerelease: false
           make_latest: true
           files: |
