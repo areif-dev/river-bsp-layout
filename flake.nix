@@ -26,7 +26,7 @@
         };
 
         devShells.default = pkgs.mkShell {
-          buildInputs = with pkgs; [ rust-bin.stable.latest.default ];
+          buildInputs = with pkgs; [ rust-bin.stable.latest.default rust-analyzer ];
         };
 
         packages.river-bsp-layout = pkgs.river-bsp-layout;
