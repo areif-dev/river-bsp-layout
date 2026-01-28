@@ -7,35 +7,13 @@
 
 Layout manager for [river-classic](https://codeberg.org/river/river-classic) that creates a Binary Space Partition / Grid layout using `river-layout-toolkit`
 
-## Important Notes on River 0.4.0
+## Important Notes on River 0.4.0+
 
 Future versions of River will introduce breaking changes with the current layout manager paradigm, meaning that existing River layout managers (including `river-bsp-layout`) will no longer work on River versions past and including v0.4.0. 
 
 [ifreund](https://codeberg.org/ifreund) continues to maintain a hard fork of River version 0.3.x at https://codeberg.org/river/river-classic, where `river-bsp-layout` and other layout managers will continue to function as intended indefinitely. 
 
 I make no promises that I will implement the new `river_window_management_v1` protocol. If I do, it will take a good bit of time, and will be under a new project entirely.
-
-3 Window Example:
-```
-+----------------+----------------+
-|                |                |
-|                |                |
-|                +----------------+
-|                |                |
-|                |                |
-+----------------+----------------+
-```
-
-4 Window Example:
-```
-+----------------+----------------+
-|                |                |
-|                |                |
-+----------------+----------------+
-|                |                |
-|                |                |
-+----------------+----------------+
-```
 
 ## Installing 
 
