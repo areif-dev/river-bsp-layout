@@ -92,8 +92,13 @@ pub struct UserCmd {
     pub dec_hsplit: Option<f32>,
 
     /// Reverse the order of the views as well as the order they are added.
-    #[arg(long, help_heading = "Other Options")]
-    pub reverse: bool,
+    #[arg(
+        long,
+        num_args = 0..=1,
+        default_missing_value = "",
+        help_heading = "Other Options"
+    )]
+    pub reverse: Option<String>,
 }
 
 impl UserCmd {
@@ -203,8 +208,17 @@ impl UserCmd {
     }
 
     pub fn handle_reverse(&self, layout: &mut BSPLayout) {
-        if self.reverse {
-            layout.reversed = !layout.reversed;
-        }
+        match &self.reverse {
+            None => {}
+            Some(output) if output.is_empty() => {
+                layout.reversed = !layout.reversed;
+            }
+            Some(output) => {
+                // Per-output override
+                if !layout.reversed_outputs.remove(output) {
+                    layout.reversed_outputs.insert(output.clone());
+                }
+            }
+    }
     }
 }
