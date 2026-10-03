@@ -92,8 +92,15 @@ struct Cli {
     start_hsplit: bool,
 
     /// Reverse the order of the views as well as the order they are added.
-    #[arg(long, help_heading = "Other Options")]
-    reverse: bool,
+    /// Optionally specify an output to apply the reverse only to that output.
+    #[arg(
+        long,
+        num_args = 0..=1,
+        default_missing_value = "",
+        value_name = "OUTPUT",
+        help_heading = "Other Options"
+    )]
+    pub reverse: Option<String>,
 }
 
 fn main() {
@@ -120,7 +127,15 @@ fn main() {
         return;
     }
 
-    layout.reversed = cli.reverse;
+    match cli.reverse {
+        None => {}
+        Some(output) if output.is_empty() => { 
+            layout.reversed = true;
+        }
+        Some(output) => {
+            layout.reversed_outputs.insert(output);
+        }
+    }
     layout.start_hsplit = cli.start_hsplit;
 
     run(layout).unwrap();
