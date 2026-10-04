@@ -3,6 +3,7 @@ pub mod user_cmd;
 use clap::Parser;
 use river_layout_toolkit::{GeneratedLayout, Layout, Rectangle};
 use std::fmt::Display;
+use std::collections::HashSet;
 
 /// Wrapper for errors relating to the creation or operation of a `BSPLayout`
 #[non_exhaustive]
@@ -67,6 +68,9 @@ pub struct BSPLayout {
 
     /// If `true`, new views will be prepended to the list. Otherwise, new views will be appended.
     pub reversed: bool,
+
+    /// Outputs whose reverse state should be inverted relative to the global `reversed` setting.
+    pub reversed_outputs: HashSet<String>,
 }
 
 impl BSPLayout {
@@ -89,6 +93,7 @@ impl BSPLayout {
             hsplit_perc: 0.5,
             vsplit_perc: 0.5,
             reversed: false,
+            reversed_outputs: HashSet::new(),
             start_hsplit: false,
         }
     }
@@ -191,6 +196,7 @@ impl BSPLayout {
         canvas_width: u32,
         canvas_height: u32,
         view_count: u32,
+        reversed: bool,
     ) -> Result<GeneratedLayout, BSPLayoutError> {
         let (half_view_count, views_remaining, mut layout) = self.setup_split(view_count)?;
 
@@ -216,13 +222,13 @@ impl BSPLayout {
         }
         let sec_split = canvas_height - prime_split;
 
-        let (prime_sub, sec_sub) = if !self.reversed {
+        let (prime_sub, sec_sub) = if !reversed {
             (self.ig_bottom, self.ig_top)
         } else {
             (self.ig_top, self.ig_bottom)
         };
 
-        let (prime_y, sec_y) = if !self.reversed {
+        let (prime_y, sec_y) = if !reversed {
             (origin_y, prime_split as i32 + origin_y + sec_sub as i32)
         } else {
             (sec_split as i32 + origin_y + prime_sub as i32, origin_y)
@@ -238,6 +244,7 @@ impl BSPLayout {
                 1
             },
             half_view_count,
+            reversed,
         )?;
 
         let mut sec_layout = self.vsplit(
@@ -250,6 +257,7 @@ impl BSPLayout {
                 1
             },
             half_view_count + views_remaining,
+            reversed,
         )?;
 
         layout.views.append(&mut prime_layout.views);
@@ -295,6 +303,7 @@ impl BSPLayout {
         canvas_width: u32,
         canvas_height: u32,
         view_count: u32,
+        reversed: bool,
     ) -> Result<GeneratedLayout, BSPLayoutError> {
         let (half_view_count, views_remaining, mut layout) = self.setup_split(view_count)?;
 
@@ -321,13 +330,13 @@ impl BSPLayout {
 
         let sec_split = canvas_width - prime_split;
 
-        let (prime_sub, sec_sub) = if !self.reversed {
+        let (prime_sub, sec_sub) = if !reversed {
             (self.ig_right, self.ig_left)
         } else {
             (self.ig_left, self.ig_right)
         };
 
-        let (prime_x, sec_x) = if !self.reversed {
+        let (prime_x, sec_x) = if !reversed {
             (origin_x, prime_split as i32 + origin_x + sec_sub as i32)
         } else {
             (sec_split as i32 + origin_x + prime_sub as i32, origin_x)
@@ -343,6 +352,7 @@ impl BSPLayout {
             },
             canvas_height,
             half_view_count,
+            reversed,
         )?;
 
         let mut sec_layout = self.hsplit(
@@ -355,6 +365,7 @@ impl BSPLayout {
             },
             canvas_height,
             half_view_count + views_remaining,
+            reversed,
         )?;
 
         layout.views.append(&mut prime_layout.views);
@@ -448,8 +459,13 @@ impl Layout for BSPLayout {
         usable_width: u32,
         usable_height: u32,
         _tags: u32,
-        _output: &str,
+        output: &str,
     ) -> Result<GeneratedLayout, Self::Error> {
+        let reversed = if self.reversed_outputs.contains(output) {
+            !self.reversed
+        } else {
+            self.reversed
+        };
         if !self.start_hsplit {
             Ok(self.vsplit(
                 self.og_left as i32,
@@ -457,6 +473,7 @@ impl Layout for BSPLayout {
                 usable_width - self.og_left - self.og_right,
                 usable_height - self.og_top - self.og_bottom,
                 view_count,
+                reversed,
             ))?
         } else {
             Ok(self.hsplit(
@@ -465,6 +482,7 @@ impl Layout for BSPLayout {
                 usable_width - self.og_left - self.og_right,
                 usable_height - self.og_top - self.og_bottom,
                 view_count,
+                reversed,
             ))?
         }
     }

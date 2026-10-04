@@ -1,5 +1,6 @@
 use river_bsp_layout::BSPLayout;
 use river_layout_toolkit::Layout;
+use std::collections::HashSet;
 
 #[test]
 fn test_handle_layout_helper_one_container() {
@@ -351,5 +352,86 @@ fn test_generate_layout_reverse() {
             third_view.height
         ),
         (0, 0, 960, 540)
+    );
+}
+
+#[test]
+fn test_generate_layout_reverse_output() {
+    let mut bsp = BSPLayout::new();
+    bsp.set_all_inner_gaps(0);
+    bsp.set_all_outer_gaps(0);
+
+    // Set dummy eDP-1 as the only reversed output
+    bsp.reversed_outputs = HashSet::from(["eDP-1".to_string()]);
+
+    let layout = bsp.generate_layout(3, 1920, 1080, 1, "eDP-1").unwrap();
+    assert_eq!(layout.views.len(), 3);
+    let first_view = layout.views.get(0).unwrap();
+    assert_eq!(
+        (
+            first_view.x,
+            first_view.y,
+            first_view.width,
+            first_view.height
+        ),
+        (960, 0, 960, 1080)
+    );
+
+    let second_view = layout.views.get(1).unwrap();
+    assert_eq!(
+        (
+            second_view.x,
+            second_view.y,
+            second_view.width,
+            second_view.height
+        ),
+        (0, 540, 960, 540)
+    );
+
+    let third_view = layout.views.get(2).unwrap();
+    assert_eq!(
+        (
+            third_view.x,
+            third_view.y,
+            third_view.width,
+            third_view.height
+        ),
+        (0, 0, 960, 540)
+    );
+
+    // Test that non-reversed outputs still render correctly
+    let layout = bsp.generate_layout(3, 1920, 1080, 1, "HDMI-1").unwrap();
+    assert_eq!(layout.views.len(), 3);
+    let first_view = layout.views.get(0).unwrap();
+    assert_eq!(
+        (
+            first_view.x,
+            first_view.y,
+            first_view.width,
+            first_view.height
+        ),
+        (0, 0, 960, 1080)
+    );
+
+    let second_view = layout.views.get(1).unwrap();
+    assert_eq!(
+        (
+            second_view.x,
+            second_view.y,
+            second_view.width,
+            second_view.height
+        ),
+        (960, 0, 960, 540)
+    );
+
+    let third_view = layout.views.get(2).unwrap();
+    assert_eq!(
+        (
+            third_view.x,
+            third_view.y,
+            third_view.width,
+            third_view.height
+        ),
+        (960, 540, 960, 540)
     );
 }
