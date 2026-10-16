@@ -211,7 +211,9 @@ impl UserCmd {
         match &self.reverse {
             None => {}
             Some(output) if output.is_empty() => {
-                layout.reversed = !layout.reversed;
+                if !layout.reversed_outputs.remove("*") {
+                    layout.reversed_outputs.insert(String::from("*"));
+                }
             }
             Some(output) => {
                 // Per-output override
@@ -219,6 +221,6 @@ impl UserCmd {
                     layout.reversed_outputs.insert(output.clone());
                 }
             }
-    }
+        }
     }
 }

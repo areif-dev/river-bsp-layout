@@ -2,8 +2,8 @@ pub mod user_cmd;
 
 use clap::Parser;
 use river_layout_toolkit::{GeneratedLayout, Layout, Rectangle};
-use std::fmt::Display;
 use std::collections::HashSet;
+use std::fmt::Display;
 
 /// Wrapper for errors relating to the creation or operation of a `BSPLayout`
 #[non_exhaustive]
@@ -66,10 +66,8 @@ pub struct BSPLayout {
     /// top to bottom
     pub start_hsplit: bool,
 
-    /// If `true`, new views will be prepended to the list. Otherwise, new views will be appended.
-    pub reversed: bool,
-
-    /// Outputs whose reverse state should be inverted relative to the global `reversed` setting.
+    /// Outputs in the set will have the order of their views reversed from their current
+    /// setting. If "*" is in the set, then all outputs will have their order reversed
     pub reversed_outputs: HashSet<String>,
 }
 
@@ -92,7 +90,6 @@ impl BSPLayout {
             og_bottom: 10,
             hsplit_perc: 0.5,
             vsplit_perc: 0.5,
-            reversed: false,
             reversed_outputs: HashSet::new(),
             start_hsplit: false,
         }
@@ -465,11 +462,10 @@ impl Layout for BSPLayout {
         _tags: u32,
         output: &str,
     ) -> Result<GeneratedLayout, Self::Error> {
-        let reversed = if self.reversed_outputs.contains(output) {
-            !self.reversed
-        } else {
-            self.reversed
-        };
+        // Reverse views only if either this output is reversed or all outputs are reversed, but
+        // not both
+        let reversed = self.reversed_outputs.contains("*") ^ self.reversed_outputs.contains(output);
+
         if !self.start_hsplit {
             Ok(self.vsplit(
                 self.og_left as i32,

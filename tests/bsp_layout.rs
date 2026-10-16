@@ -317,7 +317,7 @@ fn test_generate_layout_reverse() {
     let mut bsp = BSPLayout::new();
     bsp.set_all_inner_gaps(0);
     bsp.set_all_outer_gaps(0);
-    bsp.reversed = true;
+    bsp.reversed_outputs = HashSet::from(["*".to_string()]);
     let layout = bsp.generate_layout(3, 1920, 1080, 1, "eDP-1").unwrap();
 
     assert_eq!(layout.views.len(), 3);

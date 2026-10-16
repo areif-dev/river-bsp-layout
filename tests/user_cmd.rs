@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use river_bsp_layout::BSPLayout;
 use river_layout_toolkit::Layout;
 
@@ -169,10 +171,19 @@ fn test_handle_ch_split() {
 #[test]
 fn test_handle_reverse() {
     let mut bsp = BSPLayout::new();
-    bsp.reversed = false;
+    bsp.reversed_outputs = HashSet::new();
 
     bsp.user_cmd("--reverse".to_string(), None, "").unwrap();
-    assert!(bsp.reversed);
+    assert_eq!(bsp.reversed_outputs, HashSet::from(["*".to_string()]));
+    bsp.user_cmd("--reverse eDP-1".to_string(), None, "")
+        .unwrap();
+    assert_eq!(
+        bsp.reversed_outputs,
+        HashSet::from(["*".to_string(), "eDP-1".to_string()])
+    );
+    bsp.user_cmd("--reverse eDP-1".to_string(), None, "")
+        .unwrap();
+    assert_eq!(bsp.reversed_outputs, HashSet::from(["*".to_string()]));
     bsp.user_cmd("--reverse".to_string(), None, "").unwrap();
-    assert!(!bsp.reversed);
+    assert_eq!(bsp.reversed_outputs, HashSet::new());
 }

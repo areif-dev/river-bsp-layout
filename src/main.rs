@@ -129,8 +129,8 @@ fn main() {
 
     match cli.reverse {
         None => {}
-        Some(output) if output.is_empty() => { 
-            layout.reversed = true;
+        Some(output) if output.is_empty() => {
+            layout.reversed_outputs.insert(String::from("*"));
         }
         Some(output) => {
             layout.reversed_outputs.insert(output);
