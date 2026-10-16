@@ -185,6 +185,8 @@ impl BSPLayout {
     /// * `view_count` - How many windows / containers / apps / division the function
     /// needs to make in total.
     ///
+    /// * `reversed` - Flips the order that views are added to a split
+    ///
     /// # Returns
     ///
     /// A `GeneratedLayout` with `view_count` cells evenly distributed across the screen
@@ -291,6 +293,8 @@ impl BSPLayout {
     ///
     /// * `view_count` - How many windows / containers / apps / division the function
     /// needs to make in total.
+    ///
+    /// * `reversed` - Flips the order that new views are added to the split
     ///
     /// # Returns
     ///
