@@ -215,12 +215,11 @@ impl UserCmd {
                     layout.reversed_outputs.insert(String::from("*"));
                 }
             }
-            Some(output) => {
-                // Per-output override
-                if !layout.reversed_outputs.remove(output) {
-                    layout.reversed_outputs.insert(output.clone());
-                }
+            // Per-output override
+            Some(output) if !layout.reversed_outputs.remove(output) => {
+                layout.reversed_outputs.insert(output.clone());
             }
+            _ => {}
         }
     }
 }

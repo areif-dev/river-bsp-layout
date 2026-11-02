@@ -71,6 +71,12 @@ pub struct BSPLayout {
     pub reversed_outputs: HashSet<String>,
 }
 
+impl Default for BSPLayout {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl BSPLayout {
     /// Initialize a new instance of BSPLayout with inner gaps of 5 pixels and outer gaps of 10
     /// pixels on each side, a split percent of 50%, and starting on a vertical split
@@ -162,25 +168,25 @@ impl BSPLayout {
     /// # Arguments
     ///
     /// * `origin_x` - The x position of the top left of the space to be divided
-    /// relative to the entire display. For example, if you are dividing the entire
-    /// display, then the top left corner is 0, 0. If you are dividing the right
-    /// half of a 1920x1080 monitor, then the top left corner would be at 960, 0
+    ///   relative to the entire display. For example, if you are dividing the entire
+    ///   display, then the top left corner is 0, 0. If you are dividing the right
+    ///   half of a 1920x1080 monitor, then the top left corner would be at 960, 0
     ///
     /// * `origin_y` - The y position of the top left of the space to be divided
-    /// relative to the entire display. For example, if you are dividing the entire
-    /// display, then the top left corner is 0, 0. If you are dividing the bottom
-    /// half of a 1920x1080 monitor, then the top left corner would be at 0, 540
+    ///   relative to the entire display. For example, if you are dividing the entire
+    ///   display, then the top left corner is 0, 0. If you are dividing the bottom
+    ///   half of a 1920x1080 monitor, then the top left corner would be at 0, 540
     ///
     /// * `canvas_width` - The width in pixels of the area being divided. If you
-    /// are dividing all of a 1920x1080 monitor, then the `canvas_width` would be 1920.
-    /// If you are dividing the right half of the monitor, then the width is 960.
+    ///   are dividing all of a 1920x1080 monitor, then the `canvas_width` would be 1920.
+    ///   If you are dividing the right half of the monitor, then the width is 960.
     ///
     /// * `canvas_height` - The height in pixels of the area being divided. If you
-    /// are dividing all of a 1920x1080 monitor, then the height would be 1080.
-    /// If you are dividing the bottom half of the monitor, then the height is 540.
+    ///   are dividing all of a 1920x1080 monitor, then the height would be 1080.
+    ///   If you are dividing the bottom half of the monitor, then the height is 540.
     ///
     /// * `view_count` - How many windows / containers / apps / division the function
-    /// needs to make in total.
+    ///   needs to make in total.
     ///
     /// * `reversed` - Flips the order that views are added to a split
     ///
@@ -271,25 +277,25 @@ impl BSPLayout {
     /// # Arguments
     ///
     /// * `origin_x` - The x position of the top left of the space to be divided
-    /// relative to the entire display. For example, if you are dividing the entire
-    /// display, then the top left corner is 0, 0. If you are dividing the right
-    /// half of a 1920x1080 monitor, then the top left corner would be at 960, 0
+    ///   relative to the entire display. For example, if you are dividing the entire
+    ///   display, then the top left corner is 0, 0. If you are dividing the right
+    ///   half of a 1920x1080 monitor, then the top left corner would be at 960, 0
     ///
     /// * `origin_y` - The y position of the top left of the space to be divided
-    /// relative to the entire display. For example, if you are dividing the entire
-    /// display, then the top left corner is 0, 0. If you are dividing the bottom
-    /// half of a 1920x1080 monitor, then the top left corner would be at 0, 540
+    ///   relative to the entire display. For example, if you are dividing the entire
+    ///   display, then the top left corner is 0, 0. If you are dividing the bottom
+    ///   half of a 1920x1080 monitor, then the top left corner would be at 0, 540
     ///
     /// * `canvas_width` - The width in pixels of the area being divided. If you
-    /// are dividing all of a 1920x1080 monitor, then the `canvas_width` would be 1920.
-    /// If you are dividing the right half of the monitor, then the width is 960.
+    ///   are dividing all of a 1920x1080 monitor, then the `canvas_width` would be 1920.
+    ///   If you are dividing the right half of the monitor, then the width is 960.
     ///
     /// * `canvas_height` - The height in pixels of the area being divided. If you
-    /// are dividing all of a 1920x1080 monitor, then the height would be 1080.
-    /// If you are dividing the bottom half of the monitor, then the height is 540.
+    ///   are dividing all of a 1920x1080 monitor, then the height would be 1080.
+    ///   If you are dividing the bottom half of the monitor, then the height is 540.
     ///
     /// * `view_count` - How many windows / containers / apps / division the function
-    /// needs to make in total.
+    ///   needs to make in total.
     ///
     /// * `reversed` - Flips the order that new views are added to the split
     ///
@@ -442,7 +448,7 @@ impl Layout for BSPLayout {
     /// * `usable_width` - How many pixels wide the whole display is
     /// * `usable_height` - How many pixels tall the whole display is
     /// * `_tags` - Int representing which tags are currently active based on which
-    /// bit is toggled
+    ///   bit is toggled
     /// * `_output` - The name of the output to generate the layout on
     ///
     /// # Examples
