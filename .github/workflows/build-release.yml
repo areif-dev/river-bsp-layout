@@ -46,13 +46,14 @@ jobs:
           mv target/${{ matrix.arch }}-${{ matrix.target }}/release/river-bsp-layout ./river-bsp-layout-${{ matrix.arch }}-${{ matrix.target }}
           tar -czf ./river-bsp-layout-${{ matrix.arch }}-${{ matrix.target }}.tar.gz ./river-bsp-layout-${{ matrix.arch }}-${{ matrix.target }} ./README.md ./LICENSE ./depends.md
 
-      - name: Install cargo-rpm 
-        run: cargo install cargo-rpm 
+      - name: Install cargo-generate-rpm
+        run: cargo install cargo-generate-rpm --locked
 
-      - name: Build RPM 
+      - name: Build RPM
         run: |
-          cargo rpm build 
-          mv ./target/release/rpmbuild/RPMS/${{ matrix.arch }}/*.rpm ./river-bsp-layout-${{ matrix.arch }}.rpm
+          cargo build --release
+          cargo generate-rpm
+          mv ./target/generate-rpm/*.rpm ./river-bsp-layout-${{ matrix.arch }}.rpm
 
       - name: Install cargo-deb
         run: cargo install cargo-deb

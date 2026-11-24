@@ -2,11 +2,9 @@
 name = "river-bsp-layout"
 version = "2.2.0"
 edition = "2021"
-authors = ["AJ Reifsnyder <ajreifsnyder@protonmail.com>"]
-about = "Binary space partitioned layout for the tiling Wayland compositor River."
+authors = ["AJ Reifsnyder <aj@ajreifsnyder.com>"]
 license = "GPL-3.0"
 description = "Binary space partitioned layout for the tiling Wayland compositor River."
-homepage = "https://github.com/areif-dev/river-bsp-layout"
 repository = "https://github.com/areif-dev/river-bsp-layout"
 readme = "README.md"
 
@@ -16,11 +14,7 @@ readme = "README.md"
 clap = { version = "4.5", features = ["derive", "wrap_help"] }
 river-layout-toolkit = "0.1"
 
-[package.metadata.rpm]
-package = "river-bsp-layout"
-
-[package.metadata.rpm.cargo]
-buildflags = ["--release"]
-
-[package.metadata.rpm.targets]
-river-bsp-layout = { path = "/usr/bin/river-bsp-layout" }
+[package.metadata.generate-rpm]
+assets = [
+    { source = "target/release/river-bsp-layout", dest = "/usr/bin/river-bsp-layout", mode = "755" },
+]
